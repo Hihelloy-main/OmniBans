@@ -47,7 +47,7 @@ public final class BanIpCommand extends AbstractSubCommand {
         UUID staffUuid = sender instanceof Player player ? player.getUniqueId() : null;
         String staffName = sender.getName();
         if (IP_PATTERN.matcher(input).matches()) {
-            applyBan(sender, input, input, staffUuid, staffName, reason);
+            applyRawIpBan(sender, input, staffUuid, staffName, reason);
             return;
         }
         Player online = plugin.getServer().getPlayerExact(input);
@@ -57,14 +57,19 @@ public final class BanIpCommand extends AbstractSubCommand {
             return;
         }
         plugin.getPlayerResolver().resolve(input).thenAccept(resolved ->
-            plugin.getStorage().findKnownIps(resolved.getUuid()).thenAccept(ips -> {
-                if (ips.isEmpty()) {
-                    send(sender, "banip.no-ip-found", Map.of("target", resolved.getName()));
-                    return;
-                }
-                String ip = ips.get(ips.size() - 1);
-                guardedApply(sender, resolved.getUuid(), resolved.getName(), ip, staffUuid, staffName, reason);
-            }));
+                plugin.getStorage().findKnownIps(resolved.getUuid()).thenAccept(ips -> {
+                    if (ips.isEmpty()) {
+                        send(sender, "banip.no-ip-found", Map.of("target", resolved.getName()));
+                        return;
+                    }
+                    String ip = ips.get(ips.size() - 1);
+                    guardedApply(sender, resolved.getUuid(), resolved.getName(), ip, staffUuid, staffName, reason);
+                }));
+    }
+
+    private void applyRawIpBan(CommandSender sender, String ip, UUID staffUuid, String staffName, String reason) {
+        plugin.getPunishmentService().ban(null, null, ip, staffUuid, staffName, reason, -1L, true).thenAccept(punishment ->
+                send(sender, "banip.raw-success", Map.of()));
     }
 
     private void guardedApply(CommandSender sender, UUID targetUuid, String displayName, String ip, UUID staffUuid, String staffName, String reason) {

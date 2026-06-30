@@ -26,6 +26,7 @@ tempban:
 
 banip:
   success: "{prefix} <gray>You have <red>banned <white>{target}<gray>'s ip address for <white>{reason}"
+  raw-success: "{prefix} <gray>You have <red>banned that ip address."
   broadcast: "{prefix} <white>{target} <gray>was ip banned by <yellow>{staff} <gray>for <white>{reason}"
   screen: |-
     <red><bold>Your ip address has been banned

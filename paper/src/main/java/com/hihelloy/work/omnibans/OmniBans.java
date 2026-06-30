@@ -1,5 +1,6 @@
 package com.hihelloy.work.omnibans;
 
+import com.hihelloy.work.omnibans.command.CommandOverrideService;
 import com.hihelloy.work.omnibans.command.SubCommand;
 import com.hihelloy.work.omnibans.command.executor.OmniBansExecutor;
 import com.hihelloy.work.omnibans.command.impl.AltsCommand;
@@ -31,6 +32,8 @@ import com.hihelloy.work.omnibans.common.webhook.DiscordWebhook;
 import com.hihelloy.work.omnibans.config.MessagesConfig;
 import com.hihelloy.work.omnibans.config.OmniBansConfig;
 import com.hihelloy.work.omnibans.discord.DiscordAlertService;
+import com.hihelloy.work.omnibans.gui.ConfigGuiListener;
+import com.hihelloy.work.omnibans.gui.ConfigGuiService;
 import com.hihelloy.work.omnibans.listener.ChatListener;
 import com.hihelloy.work.omnibans.listener.CommandBlockListener;
 import com.hihelloy.work.omnibans.listener.JoinListener;
@@ -45,6 +48,7 @@ import com.hihelloy.work.omnibans.service.StaffExemptionService;
 import com.hihelloy.work.omnibans.task.ExpiryTask;
 import com.hihelloy.work.omnibans.task.SyncTask;
 import com.hihelloy.work.omnibans.text.MessageDispatcher;
+import com.hihelloy.work.omnibans.util.BannerPrinter;
 import com.hihelloy.work.omnibans.util.PaperLoggerAdapter;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -71,6 +75,7 @@ public final class OmniBans extends JavaPlugin {
     private AltLookupService altLookupService;
     private StaffExemptionService staffExemptionService;
     private DiscordAlertService discordAlertService;
+    private ConfigGuiService configGuiService;
     private MessageDispatcher messageDispatcher;
     private ExpiryTask expiryTask;
     private SyncTask syncTask;
@@ -110,6 +115,7 @@ public final class OmniBans extends JavaPlugin {
         staffExemptionService = new StaffExemptionService(this);
         discordAlertService = new DiscordAlertService(this);
         discordAlertService.reload();
+        configGuiService = new ConfigGuiService(this);
         seedNameCaches();
         networkBridge = new PaperNetworkBridge(this);
         networkBridge.register();
@@ -119,7 +125,7 @@ public final class OmniBans extends JavaPlugin {
         expiryTask.start();
         syncTask = new SyncTask(this);
         syncTask.start();
-        getLogger().info("OmniBans has been enabled.");
+        new BannerPrinter(this).print();
     }
 
     @Override
@@ -148,14 +154,14 @@ public final class OmniBans extends JavaPlugin {
     private PunishmentStorage buildStorage() {
         if (omniBansConfig.getStorageType() == com.hihelloy.work.omnibans.common.storage.StorageType.MYSQL) {
             return new MySqlStorage(
-                omniBansConfig.getMysqlHost(),
-                omniBansConfig.getMysqlPort(),
-                omniBansConfig.getMysqlDatabase(),
-                omniBansConfig.getMysqlUsername(),
-                omniBansConfig.getMysqlPassword(),
-                omniBansConfig.isMysqlUseSsl(),
-                asyncExecutor,
-                new PaperLoggerAdapter(getLogger()));
+                    omniBansConfig.getMysqlHost(),
+                    omniBansConfig.getMysqlPort(),
+                    omniBansConfig.getMysqlDatabase(),
+                    omniBansConfig.getMysqlUsername(),
+                    omniBansConfig.getMysqlPassword(),
+                    omniBansConfig.isMysqlUseSsl(),
+                    asyncExecutor,
+                    new PaperLoggerAdapter(getLogger()));
         }
         File databaseFile = new File(getDataFolder(), "omnibans.db");
         return new SqliteStorage(databaseFile, asyncExecutor, new PaperLoggerAdapter(getLogger()));
@@ -164,10 +170,10 @@ public final class OmniBans extends JavaPlugin {
     private NetworkMessenger buildNetworkMessenger() {
         if (omniBansConfig.isRedisEnabled()) {
             return new RedisNetworkMessenger(
-                omniBansConfig.getRedisHost(),
-                omniBansConfig.getRedisPort(),
-                omniBansConfig.getRedisPassword(),
-                new PaperLoggerAdapter(getLogger()));
+                    omniBansConfig.getRedisHost(),
+                    omniBansConfig.getRedisPort(),
+                    omniBansConfig.getRedisPassword(),
+                    new PaperLoggerAdapter(getLogger()));
         }
         return new NoopNetworkMessenger();
     }
@@ -191,14 +197,18 @@ public final class OmniBans extends JavaPlugin {
         addSubCommand(new AltsCommand(this));
         addSubCommand(new OmniBansAdminCommand(this));
         for (SubCommand subCommand : subCommands.values()) {
-            bindCommand(subCommand);
+            bindCommand(subCommand.name(), subCommand);
         }
+        bindCommand("ban-ip", subCommands.get("banip"));
+        bindCommand("pardon", subCommands.get("unban"));
+        bindCommand("pardon-ip", subCommands.get("unbanip"));
+        new CommandOverrideService(this).applyIfNeeded();
     }
 
-    private void bindCommand(SubCommand subCommand) {
-        PluginCommand pluginCommand = getCommand(subCommand.name());
+    private void bindCommand(String label, SubCommand subCommand) {
+        PluginCommand pluginCommand = getCommand(label);
         if (pluginCommand == null) {
-            getLogger().warning("Command not registered in plugin.yml: " + subCommand.name());
+            getLogger().warning("Command not registered in plugin.yml: " + label);
             return;
         }
         OmniBansExecutor executor = new OmniBansExecutor(subCommand);
@@ -215,6 +225,7 @@ public final class OmniBans extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new JoinListener(this), this);
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
         getServer().getPluginManager().registerEvents(new CommandBlockListener(this), this);
+        getServer().getPluginManager().registerEvents(new ConfigGuiListener(this), this);
         tryRegisterModernChatListener();
     }
 
@@ -276,6 +287,10 @@ public final class OmniBans extends JavaPlugin {
 
     public DiscordAlertService getDiscordAlertService() {
         return discordAlertService;
+    }
+
+    public ConfigGuiService getConfigGuiService() {
+        return configGuiService;
     }
 
     public MessageDispatcher getMessageDispatcher() {

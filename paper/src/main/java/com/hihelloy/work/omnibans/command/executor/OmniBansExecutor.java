@@ -6,6 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 
+import java.util.Collections;
 import java.util.List;
 
 public final class OmniBansExecutor implements CommandExecutor, TabCompleter {
@@ -24,6 +25,9 @@ public final class OmniBansExecutor implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (subCommand.permission() != null && !sender.hasPermission(subCommand.permission())) {
+            return Collections.emptyList();
+        }
         return subCommand.tabComplete(sender, args);
     }
 

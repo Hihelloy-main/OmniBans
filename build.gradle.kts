@@ -4,7 +4,7 @@ plugins {
 
 allprojects {
     group = "com.hihelloy.work.omnibans"
-    version = "1.0.0"
+    version = "1.0"
 
     repositories {
         mavenCentral()

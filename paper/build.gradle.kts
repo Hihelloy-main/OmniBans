@@ -10,6 +10,7 @@ dependencies {
     implementation("net.kyori:adventure-text-minimessage:4.17.0")
     implementation("net.kyori:adventure-text-serializer-legacy:4.17.0")
     implementation("net.kyori:adventure-text-serializer-bungeecord:4.3.4")
+    implementation("net.kyori:adventure-text-serializer-plain:4.17.0")
 }
 
 tasks.shadowJar {

@@ -5,6 +5,7 @@ import com.hihelloy.work.omnibans.common.punishment.Punishment;
 import com.hihelloy.work.omnibans.common.util.TimeFormatter;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -22,6 +23,11 @@ public final class ModernChatListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncChatEvent event) {
+        String plainText = PlainTextComponentSerializer.plainText().serialize(event.message());
+        if (plugin.getConfigGuiService().tryHandleChatInput(event.getPlayer(), plainText)) {
+            event.setCancelled(true);
+            return;
+        }
         Punishment mute = plugin.getCache().getMute(event.getPlayer().getUniqueId());
         if (mute == null) {
             return;

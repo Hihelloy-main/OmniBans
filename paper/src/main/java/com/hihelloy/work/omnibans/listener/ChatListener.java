@@ -23,6 +23,10 @@ public final class ChatListener implements Listener {
     @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncPlayerChatEvent event) {
+        if (plugin.getConfigGuiService().tryHandleChatInput(event.getPlayer(), event.getMessage())) {
+            event.setCancelled(true);
+            return;
+        }
         Punishment mute = plugin.getCache().getMute(event.getPlayer().getUniqueId());
         if (mute == null) {
             return;

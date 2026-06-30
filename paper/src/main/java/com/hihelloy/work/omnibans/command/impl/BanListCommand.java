@@ -4,6 +4,7 @@ import com.hihelloy.work.omnibans.OmniBans;
 import com.hihelloy.work.omnibans.command.AbstractSubCommand;
 import com.hihelloy.work.omnibans.common.punishment.Punishment;
 import com.hihelloy.work.omnibans.common.punishment.PunishmentType;
+import com.hihelloy.work.omnibans.util.PunishmentDisplay;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public final class BanListCommand extends AbstractSubCommand {
         send(sender, "banlist.header", headerPlaceholders);
         for (Punishment punishment : slice) {
             Map<String, String> placeholders = new HashMap<>();
-            placeholders.put("target", punishment.getTargetName());
+            placeholders.put("target", PunishmentDisplay.safeName(punishment));
             placeholders.put("staff", punishment.getStaffName() != null ? punishment.getStaffName() : "Console");
             placeholders.put("reason", punishment.getReason() != null ? punishment.getReason() : "No reason specified");
             send(sender, "banlist.entry", placeholders);

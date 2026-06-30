@@ -3,10 +3,10 @@ version: '${version}'
 main: com.hihelloy.work.omnibans.OmniBans
 api-version: '1.13'
 folia-supported: true
-softdepend: [LuckPerms]
+softdepend: [LuckPerms, Essentials]
 author: Hihelloy
 description: An advanced cross-network moderation plugin
-website: https://github.com/Hihelloy-main
+website: https://github.com/Hihelloy-main/OmniBans
 
 commands:
   ban:
@@ -28,6 +28,18 @@ commands:
   unbanip:
     description: Unbans an ip address
     usage: /unbanip <ip>
+    permission: omnibans.unbanip
+  ban-ip:
+    description: Bans an ip address, vanilla command name claimed by OmniBans
+    usage: /ban-ip <ip|player> [reason]
+    permission: omnibans.banip
+  pardon:
+    description: Unbans a player, vanilla command name claimed by OmniBans
+    usage: /pardon <player>
+    permission: omnibans.unban
+  pardon-ip:
+    description: Unbans an ip address, vanilla command name claimed by OmniBans
+    usage: /pardon-ip <ip|player>
     permission: omnibans.unbanip
   mute:
     description: Mutes a player
@@ -75,7 +87,7 @@ commands:
     permission: omnibans.alts
   omnibans:
     description: OmniBans administrative command
-    usage: /omnibans <reload|version>
+    usage: /omnibans <reload|version|config|messages>
     permission: omnibans.admin
 
 permissions:
@@ -128,9 +140,9 @@ permissions:
   omnibans.check:
     default: op
   omnibans.banlist:
-    default: true
+    default: op
   omnibans.mutelist:
-    default: true
+    default: op
   omnibans.alts:
     default: op
   omnibans.alerts.alts:
