@@ -1,0 +1,154 @@
+name: OmniBans
+version: '${version}'
+main: com.hihelloy.work.omnibans.OmniBans
+api-version: '1.13'
+folia-supported: true
+softdepend: [LuckPerms]
+author: Hihelloy
+description: An advanced cross-network moderation plugin
+website: https://github.com/Hihelloy-main
+
+commands:
+  ban:
+    description: Bans a player
+    usage: /ban <player> [reason]
+    permission: omnibans.ban
+  tempban:
+    description: Temporarily bans a player
+    usage: /tempban <player> <duration> [reason]
+    permission: omnibans.tempban
+  unban:
+    description: Unbans a player
+    usage: /unban <player>
+    permission: omnibans.unban
+  banip:
+    description: Bans an ip address
+    usage: /banip <ip|player> [reason]
+    permission: omnibans.banip
+  unbanip:
+    description: Unbans an ip address
+    usage: /unbanip <ip>
+    permission: omnibans.unbanip
+  mute:
+    description: Mutes a player
+    usage: /mute <player> [reason]
+    permission: omnibans.mute
+  tempmute:
+    description: Temporarily mutes a player
+    usage: /tempmute <player> <duration> [reason]
+    permission: omnibans.tempmute
+  unmute:
+    description: Unmutes a player
+    usage: /unmute <player>
+    permission: omnibans.unmute
+  kick:
+    description: Kicks a player
+    usage: /kick <player> [reason]
+    permission: omnibans.kick
+  warn:
+    description: Warns a player
+    usage: /warn <player> [reason]
+    permission: omnibans.warn
+  note:
+    description: Adds a staff note to a player
+    usage: /note <player> <note>
+    permission: omnibans.note
+  history:
+    description: Shows a player's punishment history
+    usage: /history <player> [page]
+    permission: omnibans.history
+  check:
+    description: Shows a player's punishment status and known alts
+    usage: /check <player>
+    permission: omnibans.check
+  banlist:
+    description: Lists currently active bans
+    usage: /banlist [page]
+    permission: omnibans.banlist
+  mutelist:
+    description: Lists currently active mutes
+    usage: /mutelist [page]
+    permission: omnibans.mutelist
+  alts:
+    description: Shows a player's known alt accounts and their punishment status
+    usage: /alts <player>
+    permission: omnibans.alts
+  omnibans:
+    description: OmniBans administrative command
+    usage: /omnibans <reload|version>
+    permission: omnibans.admin
+
+permissions:
+  omnibans.*:
+    description: Grants all OmniBans permissions
+    default: op
+    children:
+      omnibans.ban: true
+      omnibans.tempban: true
+      omnibans.unban: true
+      omnibans.banip: true
+      omnibans.unbanip: true
+      omnibans.mute: true
+      omnibans.tempmute: true
+      omnibans.unmute: true
+      omnibans.kick: true
+      omnibans.warn: true
+      omnibans.note: true
+      omnibans.history: true
+      omnibans.check: true
+      omnibans.banlist: true
+      omnibans.mutelist: true
+      omnibans.alts: true
+      omnibans.alerts.alts: true
+      omnibans.admin: true
+  omnibans.ban:
+    default: op
+  omnibans.tempban:
+    default: op
+  omnibans.unban:
+    default: op
+  omnibans.banip:
+    default: op
+  omnibans.unbanip:
+    default: op
+  omnibans.mute:
+    default: op
+  omnibans.tempmute:
+    default: op
+  omnibans.unmute:
+    default: op
+  omnibans.kick:
+    default: op
+  omnibans.warn:
+    default: op
+  omnibans.note:
+    default: op
+  omnibans.history:
+    default: op
+  omnibans.check:
+    default: op
+  omnibans.banlist:
+    default: true
+  omnibans.mutelist:
+    default: true
+  omnibans.alts:
+    default: op
+  omnibans.alerts.alts:
+    default: op
+  omnibans.admin:
+    default: op
+  omnibans.exempt.ban:
+    description: Protects a player from being banned or tempbanned
+    default: false
+  omnibans.exempt.mute:
+    description: Protects a player from being muted or tempmuted
+    default: false
+  omnibans.exempt.kick:
+    description: Protects a player from being kicked
+    default: false
+  omnibans.exempt.warn:
+    description: Protects a player from being warned
+    default: false
+  omnibans.exempt.banip:
+    description: Protects a player from having their ip address banned
+    default: false

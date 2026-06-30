@@ -1,0 +1,5 @@
+name: OmniBans-Bungee
+main: com.hihelloy.work.omnibans.bungee.OmniBansBungee
+version: 1.0.0
+author: Hihelloy
+description: Cross-network ban and mute enforcement bridge for BungeeCord

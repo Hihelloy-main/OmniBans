@@ -1,0 +1,108 @@
+no-permission: "{prefix} <red>You do not have permission to use that command."
+invalid-usage: "{prefix} <red>Usage: <white>{usage}"
+player-not-found: "{prefix} <red>That player could not be found."
+invalid-duration: "{prefix} <red>Invalid duration, try something like <white>1d12h30m"
+exempt:
+  cannot-punish: "{prefix} <red>{target} is exempt from that punishment."
+
+ban:
+  success: "{prefix} <gray>You have <red>banned <white>{target} <gray>for <white>{reason}"
+  broadcast: "{prefix} <white>{target} <gray>was banned by <yellow>{staff} <gray>for <white>{reason}"
+  screen: |-
+    <red><bold>You have been banned
+    <gray>Reason: <white>{reason}
+    <gray>Expires: <white>{expires}
+    <gray>Banned by: <white>{staff}
+    <gray>Ban ID: <white>#{id}
+
+tempban:
+  success: "{prefix} <gray>You have <red>banned <white>{target} <gray>for <white>{duration} <gray>for <white>{reason}"
+  screen: |-
+    <red><bold>You have been temporarily banned
+    <gray>Reason: <white>{reason}
+    <gray>Expires: <white>{expires}
+    <gray>Banned by: <white>{staff}
+    <gray>Ban ID: <white>#{id}
+
+banip:
+  success: "{prefix} <gray>You have <red>banned <white>{target}<gray>'s ip address for <white>{reason}"
+  broadcast: "{prefix} <white>{target} <gray>was ip banned by <yellow>{staff} <gray>for <white>{reason}"
+  screen: |-
+    <red><bold>Your ip address has been banned
+    <gray>Reason: <white>{reason}
+    <gray>Expires: <white>{expires}
+    <gray>Banned by: <white>{staff}
+    <gray>Ban ID: <white>#{id}
+  no-ip-found: "{prefix} <red>No known ip address was found for <white>{target}"
+
+unban:
+  success: "{prefix} <gray>You have <green>unbanned <white>{target}"
+  not-banned: "{prefix} <red>{target} is not currently banned."
+
+unbanip:
+  success: "{prefix} <gray>You have <green>unbanned <white>{target}<gray>'s ip address"
+  not-banned: "{prefix} <red>{target} does not have an active ip ban."
+  unknown-target: "{prefix} <red>That ip address is not currently banned."
+  raw-success: "{prefix} <gray>You have <green>unbanned that ip address."
+
+mute:
+  success: "{prefix} <gray>You have <red>muted <white>{target} <gray>for <white>{reason}"
+  broadcast: "{prefix} <white>{target} <gray>was muted by <yellow>{staff} <gray>for <white>{reason}"
+  notify: "{prefix} <gray>You have been muted. Reason: <white>{reason} <gray>Expires: <white>{expires}"
+  blocked: "{prefix} <red>You are muted and cannot do that. Reason: <white>{reason} <gray>Expires: <white>{expires}"
+
+tempmute:
+  success: "{prefix} <gray>You have <red>muted <white>{target} <gray>for <white>{duration} <gray>for <white>{reason}"
+
+unmute:
+  success: "{prefix} <gray>You have <green>unmuted <white>{target}"
+  not-muted: "{prefix} <red>{target} is not currently muted."
+
+kick:
+  success: "{prefix} <gray>You have <red>kicked <white>{target} <gray>for <white>{reason}"
+  screen: |-
+    <red><bold>You have been kicked
+    <gray>Reason: <white>{reason}
+    <gray>Kicked by: <white>{staff}
+  broadcast: "{prefix} <white>{target} <gray>was kicked by <yellow>{staff} <gray>for <white>{reason}"
+
+warn:
+  success: "{prefix} <gray>You have <yellow>warned <white>{target} <gray>for <white>{reason} <gray>({count} active warnings)"
+  broadcast: "{prefix} <white>{target} <gray>was warned by <yellow>{staff} <gray>for <white>{reason}"
+  notify: "{prefix} <gray>You have been warned by <white>{staff}<gray>. Reason: <white>{reason}"
+
+note:
+  success: "{prefix} <gray>Note added to <white>{target}"
+
+history:
+  empty: "{prefix} <gray>{target} <gray>has no punishment history."
+  header: "{prefix} <gray>History for <white>{target} <gray>(page <white>{page}<gray>/<white>{total}<gray>)"
+  entry: "<gray>#{id} <white>{type} <gray>by <white>{staff} <gray>on <white>{date} <gray>[{active}] <gray>Expires: <white>{expires} <gray>- <white>{reason}"
+
+check:
+  summary: "{prefix} <gray>{target} <gray>| <white>{ban-status} <gray>| <white>{mute-status} <gray>| Warns: <white>{warns} <gray>| Known ips: <white>{ip-count}"
+  alts: "{prefix} <gray>Possible alts for <white>{target}<gray>: <white>{alts}"
+
+banlist:
+  empty: "{prefix} <gray>There are no active bans."
+  header: "{prefix} <gray>Active bans (page <white>{page}<gray>/<white>{total}<gray>, <white>{count} <gray>total)"
+  entry: "<gray>- <white>{target} <gray>by <white>{staff} <gray>- <white>{reason}"
+
+mutelist:
+  empty: "{prefix} <gray>There are no active mutes."
+  header: "{prefix} <gray>Active mutes (page <white>{page}<gray>/<white>{total}<gray>, <white>{count} <gray>total)"
+  entry: "<gray>- <white>{target} <gray>by <white>{staff} <gray>- <white>{reason}"
+
+alts:
+  exempt: "{prefix} <yellow>{target} <gray>is opped or has the wildcard permission, so alt checks don't apply to them."
+  none: "{prefix} <gray>{target} <gray>has no known alts."
+  header: "{prefix} <gray>{target} <gray>has <white>{count} <gray>known alt(s):"
+  entry: "<gray>- <white>{name} <gray>{status}"
+  shared-ip-status: "{prefix} <gray>Shared ip status: <white>{status}"
+
+alerts:
+  alt-join: "{prefix} <yellow>{target} <gray>just joined and has <white>{count} <gray>known alt(s): <white>{alts}"
+
+admin:
+  reloaded: "{prefix} <green>Configuration reloaded."
+  version: "{prefix} <gray>Running version <white>{version}"

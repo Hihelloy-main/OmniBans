@@ -1,0 +1,62 @@
+prefix: "<gray>[<gradient:#ff0000:#ff8c00>OmniBans</gradient><gray>]"
+server-name: "lobby"
+
+# SQLITE needs nothing installed at all, it just creates a file called
+# omnibans.db right here in this folder and uses that. This is the right
+# choice if you only run one server. Switch this to MYSQL only if you are
+# running more than one server and want a ban to follow a player between
+# them, in which case fill in the mysql section below with a database
+# that already exists on a MySQL or MariaDB server you have running.
+storage:
+  type: SQLITE
+  mysql:
+    host: localhost
+    port: 3306
+    database: omnibans
+    username: root
+    password: ""
+    use-ssl: false
+
+redis:
+  enabled: false
+  host: localhost
+  port: 6379
+  password: ""
+
+discord:
+  enabled: false
+  webhook-url: ""
+
+discord-bot:
+  enabled: false
+  token: ""
+  server-id: ""
+  channel-id: ""
+  admin-role-id: ""
+
+punishments:
+  warn-threshold: 3
+  warn-punishment: tempban
+  warn-punishment-duration: "1d"
+  blocked-commands-while-muted:
+    - msg
+    - tell
+    - reply
+    - mail
+    - w
+    - whisper
+  common-reasons:
+    - Hacking
+    - Spamming
+    - Harassment
+    - Inappropriate language
+    - Advertising
+    - Ban evasion
+
+broadcast:
+  ban: true
+  mute: true
+  kick: false
+  warn: true
+
+ip-tracking: true
