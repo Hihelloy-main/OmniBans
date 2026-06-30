@@ -29,6 +29,7 @@ import com.hihelloy.work.omnibans.common.storage.PunishmentStorage;
 import com.hihelloy.work.omnibans.common.storage.sql.MySqlStorage;
 import com.hihelloy.work.omnibans.common.storage.sql.SqliteStorage;
 import com.hihelloy.work.omnibans.common.webhook.DiscordWebhook;
+import com.hihelloy.work.omnibans.config.ConfigMigrationService;
 import com.hihelloy.work.omnibans.config.MessagesConfig;
 import com.hihelloy.work.omnibans.config.OmniBansConfig;
 import com.hihelloy.work.omnibans.discord.DiscordAlertService;
@@ -91,8 +92,11 @@ public final class OmniBans extends JavaPlugin {
     public void onEnable() {
         messageDispatcher = new MessageDispatcher();
         saveDefaultConfig();
+        ConfigMigrationService configMigrationService = new ConfigMigrationService(this);
+        configMigrationService.migrateConfig();
         omniBansConfig = new OmniBansConfig(this);
         omniBansConfig.load();
+        configMigrationService.migrateMessages();
         messagesConfig = new MessagesConfig(this);
         messagesConfig.load();
         asyncExecutor = Executors.newFixedThreadPool(4, new ThreadFactory() {
