@@ -2,6 +2,7 @@ package com.hihelloy.work.omnibans.velocity;
 
 import com.google.inject.Inject;
 import com.hihelloy.work.omnibans.common.cache.PunishmentCache;
+import com.hihelloy.work.omnibans.common.config.ProxyMigrationService;
 import com.hihelloy.work.omnibans.common.network.NetworkMessenger;
 import com.hihelloy.work.omnibans.common.network.NoopNetworkMessenger;
 import com.hihelloy.work.omnibans.common.network.RedisNetworkMessenger;
@@ -11,6 +12,7 @@ import com.hihelloy.work.omnibans.common.storage.sql.SqliteStorage;
 import com.hihelloy.work.omnibans.velocity.command.NetBanCommand;
 import com.hihelloy.work.omnibans.velocity.command.NetMuteCommand;
 import com.hihelloy.work.omnibans.velocity.config.VelocityConfig;
+import com.hihelloy.work.omnibans.velocity.config.VelocityMessagesConfig;
 import com.hihelloy.work.omnibans.velocity.listener.LoginListener;
 import com.hihelloy.work.omnibans.velocity.network.VelocityNetworkBridge;
 import com.hihelloy.work.omnibans.velocity.util.VelocityLoggerAdapter;
@@ -23,7 +25,10 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -35,6 +40,7 @@ public final class OmniBansVelocity {
     private final Logger logger;
     private final Path dataDirectory;
     private VelocityConfig config;
+    private VelocityMessagesConfig messages;
     private PunishmentStorage storage;
     private PunishmentCache cache;
     private NetworkMessenger networkMessenger;
@@ -50,8 +56,16 @@ public final class OmniBansVelocity {
 
     @Subscribe
     public void onProxyInitialize(ProxyInitializeEvent event) {
+        ensureDataDirectory();
+        ProxyMigrationService migration = new ProxyMigrationService(new VelocityLoggerAdapter(logger));
         config = new VelocityConfig(dataDirectory, logger);
         config.load();
+        migration.migrate(dataDirectory.resolve("config.properties").toFile(), config.openBundledStream(), List.of());
+        config.load();
+        messages = new VelocityMessagesConfig(config, dataDirectory, logger);
+        messages.load();
+        migration.migrate(dataDirectory.resolve("messages.properties").toFile(), messages.openBundledStream(), List.of());
+        messages.load();
         asyncExecutor = Executors.newFixedThreadPool(4, new ThreadFactory() {
             @Override
             public Thread newThread(Runnable runnable) {
@@ -80,6 +94,14 @@ public final class OmniBansVelocity {
         }
         if (storage != null) {
             storage.close();
+        }
+    }
+
+    private void ensureDataDirectory() {
+        try {
+            Files.createDirectories(dataDirectory);
+        } catch (Exception exception) {
+            logger.warn("Failed to create data directory: " + exception.getMessage());
         }
     }
 
@@ -124,6 +146,10 @@ public final class OmniBansVelocity {
 
     public VelocityConfig getVelocityConfig() {
         return config;
+    }
+
+    public VelocityMessagesConfig getMessages() {
+        return messages;
     }
 
     public PunishmentStorage getStorage() {

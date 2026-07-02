@@ -9,18 +9,17 @@ import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import com.velocitypowered.api.proxy.Player;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class LoginListener {
 
     private final OmniBansVelocity plugin;
-    private final MiniMessage miniMessage;
 
     public LoginListener(OmniBansVelocity plugin) {
         this.plugin = plugin;
-        this.miniMessage = MiniMessage.miniMessage();
     }
 
     @Subscribe(order = PostOrder.EARLY)
@@ -38,11 +37,12 @@ public final class LoginListener {
         if (ban == null || ban.isExpired()) {
             return;
         }
-        String reason = ban.getReason() != null ? ban.getReason() : "No reason specified";
-        String staff = ban.getStaffName() != null ? ban.getStaffName() : "Console";
-        String expires = ban.isPermanent() ? "Never" : TimeFormatter.formatRemaining(ban.getExpiresAt());
-        String message = "<red><bold>You are banned from this network\n<gray>Reason: <white>" + reason + "\n<gray>Expires: <white>" + expires + "\n<gray>Staff: <white>" + staff;
-        event.setResult(ResultedEvent.ComponentResult.denied(miniMessage.deserialize(message)));
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("reason", ban.getReason() != null ? ban.getReason() : "No reason specified");
+        placeholders.put("staff", ban.getStaffName() != null ? ban.getStaffName() : "Console");
+        placeholders.put("expires", ban.isPermanent() ? "Never" : TimeFormatter.formatRemaining(ban.getExpiresAt()));
+        placeholders.put("id", String.valueOf(ban.getId()));
+        event.setResult(ResultedEvent.ComponentResult.denied(plugin.getMessages().component("ban.screen", placeholders)));
     }
 
 }

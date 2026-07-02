@@ -3,8 +3,6 @@ package com.hihelloy.work.omnibans.bungee.network;
 import com.hihelloy.work.omnibans.bungee.OmniBansBungee;
 import com.hihelloy.work.omnibans.common.network.NetworkAction;
 import com.hihelloy.work.omnibans.common.network.NetworkPacket;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public final class BungeeNetworkBridge {
@@ -33,8 +31,7 @@ public final class BungeeNetworkBridge {
         if (player == null) {
             return;
         }
-        String message = ChatColor.translateAlternateColorCodes('&', "&c&lYou have been banned from this network");
-        player.disconnect(TextComponent.fromLegacyText(message));
+        player.disconnect(plugin.getMessages().components("ban.network-kick"));
     }
 
     private boolean isBanType(String type) {

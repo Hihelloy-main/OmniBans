@@ -107,4 +107,28 @@ public final class VelocityConfig {
         return properties.getProperty("prefix", "<gray>[<red>OmniBans</red><gray>]");
     }
 
+    public java.io.InputStream openBundledStream() {
+        Properties defaults = new Properties();
+        defaults.setProperty("storage.type", "SQLITE");
+        defaults.setProperty("storage.mysql.host", "localhost");
+        defaults.setProperty("storage.mysql.port", "3306");
+        defaults.setProperty("storage.mysql.database", "omnibans");
+        defaults.setProperty("storage.mysql.username", "root");
+        defaults.setProperty("storage.mysql.password", "");
+        defaults.setProperty("storage.mysql.use-ssl", "false");
+        defaults.setProperty("redis.enabled", "false");
+        defaults.setProperty("redis.host", "localhost");
+        defaults.setProperty("redis.port", "6379");
+        defaults.setProperty("redis.password", "");
+        defaults.setProperty("server-name", "proxy");
+        defaults.setProperty("prefix", "<gray>[<red>OmniBans</red><gray>]");
+        java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
+        try {
+            defaults.store(buffer, null);
+        } catch (IOException exception) {
+            return null;
+        }
+        return new java.io.ByteArrayInputStream(buffer.toByteArray());
+    }
+
 }
