@@ -28,7 +28,7 @@ public final class OmniBansAdminCommand extends AbstractSubCommand {
 
     @Override
     public String usage() {
-        return "/omnibans <reload|version|config|messages>";
+        return "/omnibans <reload|version|config|messages|spy>";
     }
 
     @Override
@@ -52,6 +52,14 @@ public final class OmniBansAdminCommand extends AbstractSubCommand {
         }
         if (args[0].equalsIgnoreCase("messages")) {
             openEditor(sender, args, false);
+            return;
+        }
+        if (args[0].equalsIgnoreCase("spy")) {
+            boolean newValue = !plugin.getOmniBansConfig().isSpyAttempts();
+            plugin.getConfig().set("alerts.spy-attempts", newValue);
+            plugin.saveConfig();
+            plugin.getOmniBansConfig().load();
+            send(sender, "alerts.spy-toggled", Map.of("state", newValue ? "enabled" : "disabled"));
             return;
         }
         usage(sender);
@@ -84,7 +92,7 @@ public final class OmniBansAdminCommand extends AbstractSubCommand {
     @Override
     public List<String> tabComplete(CommandSender sender, String[] args) {
         if (args.length == 1) {
-            return filterPrefix(List.of("reload", "version", "config", "messages"), args[0]);
+            return filterPrefix(List.of("reload", "version", "config", "messages", "spy"), args[0]);
         }
         return Collections.emptyList();
     }

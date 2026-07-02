@@ -15,18 +15,26 @@ import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class PunishmentService {
 
     private final OmniBans plugin;
+    private final Set<String> inFlightBans = ConcurrentHashMap.newKeySet();
+    private final Set<String> inFlightMutes = ConcurrentHashMap.newKeySet();
 
     public PunishmentService(OmniBans plugin) {
         this.plugin = plugin;
     }
 
     public CompletableFuture<Punishment> ban(UUID targetUuid, String targetName, String targetIp, UUID staffUuid, String staffName, String reason, long expiresAt, boolean ip) {
+        String flightKey = targetUuid != null ? targetUuid.toString() : targetIp;
+        if (flightKey == null || !inFlightBans.add(flightKey)) {
+            return CompletableFuture.completedFuture(null);
+        }
         PunishmentType type = ip ? PunishmentType.IP_BAN : PunishmentType.BAN;
         Punishment punishment = Punishment.builder()
                 .type(type)
@@ -41,6 +49,7 @@ public final class PunishmentService {
                 .expiresAt(expiresAt)
                 .build();
         return plugin.getStorage().insert(punishment).thenApply(inserted -> {
+            inFlightBans.remove(flightKey);
             if (ip) {
                 plugin.getCache().cacheIpBan(inserted);
             } else {
@@ -66,6 +75,10 @@ public final class PunishmentService {
     }
 
     public CompletableFuture<Punishment> mute(UUID targetUuid, String targetName, String targetIp, UUID staffUuid, String staffName, String reason, long expiresAt, boolean ip) {
+        String flightKey = targetUuid != null ? targetUuid.toString() : targetIp;
+        if (flightKey == null || !inFlightMutes.add(flightKey)) {
+            return CompletableFuture.completedFuture(null);
+        }
         PunishmentType type = ip ? PunishmentType.IP_MUTE : PunishmentType.MUTE;
         Punishment punishment = Punishment.builder()
                 .type(type)
@@ -80,6 +93,7 @@ public final class PunishmentService {
                 .expiresAt(expiresAt)
                 .build();
         return plugin.getStorage().insert(punishment).thenApply(inserted -> {
+            inFlightMutes.remove(flightKey);
             if (ip) {
                 plugin.getCache().cacheIpMute(inserted);
             } else {

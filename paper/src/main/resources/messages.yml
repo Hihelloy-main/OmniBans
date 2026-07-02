@@ -4,6 +4,8 @@ player-not-found: "{prefix} <red>That player could not be found."
 invalid-duration: "{prefix} <red>Invalid duration, try something like <white>1d12h30m"
 exempt:
   cannot-punish: "{prefix} <red>{target} is exempt from that punishment."
+  already-banned: "{prefix} <red>{target} is already banned."
+  already-muted: "{prefix} <red>{target} is already muted."
 
 ban:
   success: "{prefix} <gray>You have <red>banned <white>{target} <gray>for <white>{reason}"
@@ -103,6 +105,9 @@ alts:
 
 alerts:
   alt-join: "{prefix} <yellow>{target} <gray>just joined and has <white>{count} <gray>known alt(s): <white>{alts}"
+  spy-muted-chat: "{prefix} <dark_gray>[Spy] <yellow>{target} <gray>tried to say: <white>{message}"
+  ban-join-attempt: "{prefix} <dark_gray>[Spy] <yellow>{target} <gray>tried to join while banned."
+  spy-toggled: "{prefix} <gray>Punishment attempt alerts <white>{state}<gray>."
 
 admin:
   reloaded: "{prefix} <green>Configuration reloaded."

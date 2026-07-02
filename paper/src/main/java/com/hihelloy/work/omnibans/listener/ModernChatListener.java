@@ -42,6 +42,7 @@ public final class ModernChatListener implements Listener {
         placeholders.put("expires", mute.isPermanent() ? "Never" : TimeFormatter.formatRemaining(mute.getExpiresAt()));
         Component component = plugin.getMessages().component("mute.blocked", placeholders);
         plugin.getMessageDispatcher().send(event.getPlayer(), component);
+        plugin.getStaffAlertService().alertMutedChat(event.getPlayer().getName(), plainText);
     }
 
 }

@@ -87,7 +87,7 @@ commands:
     permission: omnibans.alts
   omnibans:
     description: OmniBans administrative command
-    usage: /omnibans <reload|version|config|messages>
+    usage: /omnibans <reload|version|config|messages|spy>
     permission: omnibans.admin
 
 permissions:

@@ -60,3 +60,6 @@ broadcast:
   warn: true
 
 ip-tracking: true
+
+alerts:
+  spy-attempts: true

@@ -39,6 +39,8 @@ public final class PreLoginListener implements Listener {
         Component component = plugin.getMessages().component(path, placeholders);
         String legacyMessage = plugin.getMessageDispatcher().flatten(component);
         event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, legacyMessage);
+        String displayName = ban.getTargetName() != null ? ban.getTargetName() : event.getName();
+        plugin.getStaffAlertService().alertBanJoinAttempt(displayName);
     }
 
 }

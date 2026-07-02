@@ -39,6 +39,7 @@ public final class OmniBansConfig {
     private boolean broadcastKick;
     private boolean broadcastWarn;
     private boolean ipTracking;
+    private boolean spyAttempts;
 
     public OmniBansConfig(OmniBans plugin) {
         this.plugin = plugin;
@@ -77,6 +78,7 @@ public final class OmniBansConfig {
         broadcastKick = config.getBoolean("broadcast.kick", false);
         broadcastWarn = config.getBoolean("broadcast.warn", true);
         ipTracking = config.getBoolean("ip-tracking", true);
+        spyAttempts = config.getBoolean("alerts.spy-attempts", true);
     }
 
     public String getPrefix() {
@@ -197,6 +199,10 @@ public final class OmniBansConfig {
 
     public boolean isIpTracking() {
         return ipTracking;
+    }
+
+    public boolean isSpyAttempts() {
+        return spyAttempts;
     }
 
 }

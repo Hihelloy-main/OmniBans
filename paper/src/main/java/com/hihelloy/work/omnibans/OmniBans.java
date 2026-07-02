@@ -45,6 +45,7 @@ import com.hihelloy.work.omnibans.scheduler.FoliaScheduler;
 import com.hihelloy.work.omnibans.service.AltLookupService;
 import com.hihelloy.work.omnibans.service.PlayerResolver;
 import com.hihelloy.work.omnibans.service.PunishmentService;
+import com.hihelloy.work.omnibans.service.StaffAlertService;
 import com.hihelloy.work.omnibans.service.StaffExemptionService;
 import com.hihelloy.work.omnibans.task.ExpiryTask;
 import com.hihelloy.work.omnibans.task.SyncTask;
@@ -75,6 +76,7 @@ public final class OmniBans extends JavaPlugin {
     private PunishmentService punishmentService;
     private AltLookupService altLookupService;
     private StaffExemptionService staffExemptionService;
+    private StaffAlertService staffAlertService;
     private DiscordAlertService discordAlertService;
     private ConfigGuiService configGuiService;
     private MessageDispatcher messageDispatcher;
@@ -117,6 +119,7 @@ public final class OmniBans extends JavaPlugin {
         punishmentService = new PunishmentService(this);
         altLookupService = new AltLookupService(this);
         staffExemptionService = new StaffExemptionService(this);
+        staffAlertService = new StaffAlertService(this);
         discordAlertService = new DiscordAlertService(this);
         discordAlertService.reload();
         configGuiService = new ConfigGuiService(this);
@@ -227,17 +230,21 @@ public final class OmniBans extends JavaPlugin {
     private void registerListeners() {
         getServer().getPluginManager().registerEvents(new PreLoginListener(this), this);
         getServer().getPluginManager().registerEvents(new JoinListener(this), this);
-        getServer().getPluginManager().registerEvents(new ChatListener(this), this);
         getServer().getPluginManager().registerEvents(new CommandBlockListener(this), this);
         getServer().getPluginManager().registerEvents(new ConfigGuiListener(this), this);
-        tryRegisterModernChatListener();
+        if (isModernChatAvailable()) {
+            getServer().getPluginManager().registerEvents(new ModernChatListener(this), this);
+        } else {
+            getServer().getPluginManager().registerEvents(new ChatListener(this), this);
+        }
     }
 
-    private void tryRegisterModernChatListener() {
+    private boolean isModernChatAvailable() {
         try {
             Class.forName("io.papermc.paper.event.player.AsyncChatEvent");
-            getServer().getPluginManager().registerEvents(new ModernChatListener(this), this);
+            return true;
         } catch (ClassNotFoundException exception) {
+            return false;
         }
     }
 
@@ -287,6 +294,10 @@ public final class OmniBans extends JavaPlugin {
 
     public StaffExemptionService getStaffExemptionService() {
         return staffExemptionService;
+    }
+
+    public StaffAlertService getStaffAlertService() {
+        return staffAlertService;
     }
 
     public DiscordAlertService getDiscordAlertService() {
