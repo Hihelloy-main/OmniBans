@@ -33,6 +33,14 @@ commands:
     description: Bans an ip address, vanilla command name claimed by OmniBans
     usage: /ban-ip <ip|player> [reason]
     permission: omnibans.banip
+  ipban:
+    description: Bans an ip address, Essentials alias claimed by OmniBans
+    usage: /ipban <ip|player> [reason]
+    permission: omnibans.banip
+  ip-ban:
+    description: Bans an ip address, Essentials alias claimed by OmniBans
+    usage: /ip-ban <ip|player> [reason]
+    permission: omnibans.banip
   pardon:
     description: Unbans a player, vanilla command name claimed by OmniBans
     usage: /pardon <player>
@@ -41,6 +49,18 @@ commands:
     description: Unbans an ip address, vanilla command name claimed by OmniBans
     usage: /pardon-ip <ip|player>
     permission: omnibans.unbanip
+  silence:
+    description: Mutes a player, Essentials alias claimed by OmniBans
+    usage: /silence <player> [reason]
+    permission: omnibans.mute
+  tban:
+    description: Temporarily bans a player, Essentials alias claimed by OmniBans
+    usage: /tban <player> <duration> [reason]
+    permission: omnibans.tempban
+  tmute:
+    description: Temporarily mutes a player, Essentials alias claimed by OmniBans
+    usage: /tmute <player> <duration> [reason]
+    permission: omnibans.tempmute
   mute:
     description: Mutes a player
     usage: /mute <player> [reason]

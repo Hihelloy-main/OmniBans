@@ -207,8 +207,13 @@ public final class OmniBans extends JavaPlugin {
             bindCommand(subCommand.name(), subCommand);
         }
         bindCommand("ban-ip", subCommands.get("banip"));
+        bindCommand("ipban", subCommands.get("banip"));
+        bindCommand("ip-ban", subCommands.get("banip"));
         bindCommand("pardon", subCommands.get("unban"));
         bindCommand("pardon-ip", subCommands.get("unbanip"));
+        bindCommand("silence", subCommands.get("mute"));
+        bindCommand("tban", subCommands.get("tempban"));
+        bindCommand("tmute", subCommands.get("tempmute"));
         new CommandOverrideService(this).applyIfNeeded();
     }
 
