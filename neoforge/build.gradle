@@ -1,0 +1,44 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.neoforged.net/releases' }
+        gradlePluginPortal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.neoforged.gradle:userdev:7.1.36'
+        classpath 'com.gradleup.shadow:shadow-gradle-plugin:8.3.5'
+    }
+}
+
+apply plugin: 'net.neoforged.gradle.userdev'
+apply plugin: 'com.gradleup.shadow'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    maven { url 'https://maven.neoforged.net/releases' }
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'net.neoforged:neoforge:21.1.0'
+    shadow('com.hihelloy.work.omnibans:common:1.0') { transitive = true }
+}
+
+shadowJar {
+    configurations = [project.configurations.shadow]
+    archiveFileName = 'OmniBans-NeoForge-1.21.x.jar'
+    mergeServiceFiles()
+}
+
+build {
+    dependsOn shadowJar
+}

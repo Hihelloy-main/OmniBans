@@ -45,17 +45,17 @@ public final class NetBanCommand extends Command {
         String staffName = sender.getName();
         String ip = ((InetSocketAddress) target.getSocketAddress()).getAddress().getHostAddress();
         Punishment punishment = Punishment.builder()
-                .type(PunishmentType.BAN)
-                .scope(PunishmentScope.GLOBAL)
-                .server(plugin.getBungeeConfig().getServerName())
-                .targetUuid(target.getUniqueId())
-                .targetName(target.getName())
-                .targetIp(ip)
-                .staffUuid(staffUuid)
-                .staffName(staffName)
-                .reason(reason)
-                .expiresAt(-1L)
-                .build();
+            .type(PunishmentType.BAN)
+            .scope(PunishmentScope.GLOBAL)
+            .server(plugin.getBungeeConfig().getServerName())
+            .targetUuid(target.getUniqueId())
+            .targetName(target.getName())
+            .targetIp(ip)
+            .staffUuid(staffUuid)
+            .staffName(staffName)
+            .reason(reason)
+            .expiresAt(-1L)
+            .build();
         plugin.getStorage().insert(punishment).thenAccept(inserted -> finish(sender, target, inserted));
     }
 

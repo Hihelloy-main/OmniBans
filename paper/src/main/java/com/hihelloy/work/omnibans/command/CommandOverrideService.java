@@ -12,9 +12,9 @@ import java.util.List;
 public final class CommandOverrideService {
 
     private static final List<String> OWNED_LABELS = List.of(
-            "ban", "tempban", "tban", "unban", "banip", "ban-ip", "ipban", "ip-ban", "unbanip",
-            "mute", "silence", "tempmute", "tmute", "unmute", "kick", "warn",
-            "banlist", "mutelist", "pardon", "pardon-ip");
+        "ban", "tempban", "tban", "unban", "banip", "ban-ip", "ipban", "ip-ban", "unbanip",
+        "mute", "silence", "tempmute", "tmute", "unmute", "kick", "warn",
+        "banlist", "mutelist", "pardon", "pardon-ip");
 
     private final OmniBans plugin;
 

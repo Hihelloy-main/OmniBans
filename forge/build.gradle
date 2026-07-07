@@ -1,0 +1,48 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.minecraftforge.net/' }
+        gradlePluginPortal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:6.0.24'
+        classpath 'com.gradleup.shadow:shadow-gradle-plugin:8.3.5'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'com.gradleup.shadow'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    maven { url 'https://maven.minecraftforge.net/' }
+    mavenCentral()
+}
+
+minecraft {
+    mappings channel: 'official', version: '1.21.1'
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.21.1-52.0.0'
+    shadow('com.hihelloy.work.omnibans:common:1.0') { transitive = true }
+}
+
+shadowJar {
+    configurations = [project.configurations.shadow]
+    archiveFileName = 'OmniBans-Forge-1.21.x.jar'
+    mergeServiceFiles()
+}
+
+build {
+    dependsOn shadowJar
+}

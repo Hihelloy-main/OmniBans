@@ -1,0 +1,23 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="MIT"
+
+[[mods]]
+modId="omnibans"
+version="1.0"
+displayName="OmniBans"
+description="Advanced server-side moderation mod for NeoForge servers."
+
+[[dependencies.omnibans]]
+    modId="neoforge"
+    type="required"
+    versionRange="[21.4,)"
+    ordering="NONE"
+    side="SERVER"
+
+[[dependencies.omnibans]]
+    modId="minecraft"
+    type="required"
+    versionRange="[1.21,1.22)"
+    ordering="NONE"
+    side="SERVER"

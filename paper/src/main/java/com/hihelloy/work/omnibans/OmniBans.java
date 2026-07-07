@@ -1,6 +1,7 @@
 package com.hihelloy.work.omnibans;
 
 import com.hihelloy.work.omnibans.command.CommandOverrideService;
+import com.hihelloy.work.omnibans.hook.DiscordSRVHook;
 import com.hihelloy.work.omnibans.command.SubCommand;
 import com.hihelloy.work.omnibans.command.executor.OmniBansExecutor;
 import com.hihelloy.work.omnibans.command.impl.AltsCommand;
@@ -50,6 +51,12 @@ import com.hihelloy.work.omnibans.service.StaffExemptionService;
 import com.hihelloy.work.omnibans.task.ExpiryTask;
 import com.hihelloy.work.omnibans.task.SyncTask;
 import com.hihelloy.work.omnibans.text.MessageDispatcher;
+import com.hihelloy.work.omnibans.api.OmniBansProvider;
+import com.hihelloy.work.omnibans.api.PaperOmniBansApi;
+import com.hihelloy.work.omnibans.event.OmniBansBanEvent;
+import com.hihelloy.work.omnibans.event.OmniBansKickEvent;
+import com.hihelloy.work.omnibans.event.OmniBansMuteEvent;
+import com.hihelloy.work.omnibans.event.OmniBansWarnEvent;
 import com.hihelloy.work.omnibans.util.BannerPrinter;
 import com.hihelloy.work.omnibans.util.PaperLoggerAdapter;
 import org.bukkit.command.PluginCommand;
@@ -74,6 +81,7 @@ public final class OmniBans extends JavaPlugin {
     private PaperNetworkBridge networkBridge;
     private PlayerResolver playerResolver;
     private PunishmentService punishmentService;
+    private PaperOmniBansApi omniBansApi;
     private AltLookupService altLookupService;
     private StaffExemptionService staffExemptionService;
     private StaffAlertService staffAlertService;
@@ -122,12 +130,42 @@ public final class OmniBans extends JavaPlugin {
         staffAlertService = new StaffAlertService(this);
         discordAlertService = new DiscordAlertService(this);
         discordAlertService.reload();
+        omniBansApi = new PaperOmniBansApi(this);
+        omniBansApi.getSimpleEventBus().subscribe(com.hihelloy.work.omnibans.api.event.PostPunishmentEvent.class, event -> {
+            if (!(event.getPunishment() instanceof com.hihelloy.work.omnibans.common.impl.CommonApiPunishment wrapper)) {
+                return;
+            }
+            com.hihelloy.work.omnibans.common.punishment.Punishment p = wrapper.unwrap();
+            switch (p.getType()) {
+                case BAN:
+                case IP_BAN:
+                    getScheduler().runGlobal(() -> getServer().getPluginManager().callEvent(new OmniBansBanEvent(p)));
+                    break;
+                case MUTE:
+                case IP_MUTE:
+                    getScheduler().runGlobal(() -> getServer().getPluginManager().callEvent(new OmniBansMuteEvent(p)));
+                    break;
+                case KICK:
+                    getScheduler().runGlobal(() -> getServer().getPluginManager().callEvent(new OmniBansKickEvent(p)));
+                    break;
+                case WARN:
+                    getScheduler().runGlobal(() -> getServer().getPluginManager().callEvent(new OmniBansWarnEvent(p)));
+                    break;
+                default:
+                    break;
+            }
+        });
+        OmniBansProvider.register(omniBansApi);
+        punishmentService.setPostPunishmentHandler(punishment -> omniBansApi.onPunishmentApplied(punishment));
         configGuiService = new ConfigGuiService(this);
         seedNameCaches();
         networkBridge = new PaperNetworkBridge(this);
         networkBridge.register();
         registerCommands();
         registerListeners();
+        if (getServer().getPluginManager().getPlugin("DiscordSRV") != null) {
+            DiscordSRVHook.tryRegister(this);
+        }
         expiryTask = new ExpiryTask(this);
         expiryTask.start();
         syncTask = new SyncTask(this);
@@ -137,6 +175,7 @@ public final class OmniBans extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        OmniBansProvider.unregister();
         if (expiryTask != null) {
             expiryTask.stop();
         }
@@ -161,14 +200,14 @@ public final class OmniBans extends JavaPlugin {
     private PunishmentStorage buildStorage() {
         if (omniBansConfig.getStorageType() == com.hihelloy.work.omnibans.common.storage.StorageType.MYSQL) {
             return new MySqlStorage(
-                    omniBansConfig.getMysqlHost(),
-                    omniBansConfig.getMysqlPort(),
-                    omniBansConfig.getMysqlDatabase(),
-                    omniBansConfig.getMysqlUsername(),
-                    omniBansConfig.getMysqlPassword(),
-                    omniBansConfig.isMysqlUseSsl(),
-                    asyncExecutor,
-                    new PaperLoggerAdapter(getLogger()));
+                omniBansConfig.getMysqlHost(),
+                omniBansConfig.getMysqlPort(),
+                omniBansConfig.getMysqlDatabase(),
+                omniBansConfig.getMysqlUsername(),
+                omniBansConfig.getMysqlPassword(),
+                omniBansConfig.isMysqlUseSsl(),
+                asyncExecutor,
+                new PaperLoggerAdapter(getLogger()));
         }
         File databaseFile = new File(getDataFolder(), "omnibans.db");
         return new SqliteStorage(databaseFile, asyncExecutor, new PaperLoggerAdapter(getLogger()));
@@ -177,10 +216,10 @@ public final class OmniBans extends JavaPlugin {
     private NetworkMessenger buildNetworkMessenger() {
         if (omniBansConfig.isRedisEnabled()) {
             return new RedisNetworkMessenger(
-                    omniBansConfig.getRedisHost(),
-                    omniBansConfig.getRedisPort(),
-                    omniBansConfig.getRedisPassword(),
-                    new PaperLoggerAdapter(getLogger()));
+                omniBansConfig.getRedisHost(),
+                omniBansConfig.getRedisPort(),
+                omniBansConfig.getRedisPassword(),
+                new PaperLoggerAdapter(getLogger()));
         }
         return new NoopNetworkMessenger();
     }
@@ -319,6 +358,14 @@ public final class OmniBans extends JavaPlugin {
 
     public Executor getAsyncExecutor() {
         return asyncExecutor;
+    }
+
+    public PaperLoggerAdapter getPaperLogger() {
+        return new PaperLoggerAdapter(getLogger());
+    }
+
+    public PaperOmniBansApi getApi() {
+        return omniBansApi;
     }
 
     public void reload() {

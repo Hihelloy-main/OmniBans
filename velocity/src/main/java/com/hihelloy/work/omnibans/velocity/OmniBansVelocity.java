@@ -108,14 +108,14 @@ public final class OmniBansVelocity {
     private PunishmentStorage buildStorage() {
         if (config.isMysql()) {
             return new MySqlStorage(
-                    config.getMysqlHost(),
-                    config.getMysqlPort(),
-                    config.getMysqlDatabase(),
-                    config.getMysqlUsername(),
-                    config.getMysqlPassword(),
-                    config.isMysqlUseSsl(),
-                    asyncExecutor,
-                    new VelocityLoggerAdapter(logger));
+                config.getMysqlHost(),
+                config.getMysqlPort(),
+                config.getMysqlDatabase(),
+                config.getMysqlUsername(),
+                config.getMysqlPassword(),
+                config.isMysqlUseSsl(),
+                asyncExecutor,
+                new VelocityLoggerAdapter(logger));
         }
         File databaseFile = dataDirectory.resolve("omnibans.db").toFile();
         File parentFolder = databaseFile.getParentFile();
@@ -128,10 +128,10 @@ public final class OmniBansVelocity {
     private NetworkMessenger buildNetworkMessenger() {
         if (config.isRedisEnabled()) {
             return new RedisNetworkMessenger(
-                    config.getRedisHost(),
-                    config.getRedisPort(),
-                    config.getRedisPassword(),
-                    new VelocityLoggerAdapter(logger));
+                config.getRedisHost(),
+                config.getRedisPort(),
+                config.getRedisPassword(),
+                new VelocityLoggerAdapter(logger));
         }
         return new NoopNetworkMessenger();
     }

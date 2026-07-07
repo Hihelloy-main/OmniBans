@@ -25,6 +25,11 @@ public final class PunishmentService {
     private final OmniBans plugin;
     private final Set<String> inFlightBans = ConcurrentHashMap.newKeySet();
     private final Set<String> inFlightMutes = ConcurrentHashMap.newKeySet();
+    private java.util.function.Consumer<Punishment> postPunishmentHandler;
+
+    public void setPostPunishmentHandler(java.util.function.Consumer<Punishment> handler) {
+        this.postPunishmentHandler = handler;
+    }
 
     public PunishmentService(OmniBans plugin) {
         this.plugin = plugin;
@@ -37,17 +42,17 @@ public final class PunishmentService {
         }
         PunishmentType type = ip ? PunishmentType.IP_BAN : PunishmentType.BAN;
         Punishment punishment = Punishment.builder()
-                .type(type)
-                .scope(PunishmentScope.GLOBAL)
-                .server(plugin.getOmniBansConfig().getServerName())
-                .targetUuid(targetUuid)
-                .targetName(targetName)
-                .targetIp(targetIp)
-                .staffUuid(staffUuid)
-                .staffName(staffName)
-                .reason(reason)
-                .expiresAt(expiresAt)
-                .build();
+            .type(type)
+            .scope(PunishmentScope.GLOBAL)
+            .server(plugin.getOmniBansConfig().getServerName())
+            .targetUuid(targetUuid)
+            .targetName(targetName)
+            .targetIp(targetIp)
+            .staffUuid(staffUuid)
+            .staffName(staffName)
+            .reason(reason)
+            .expiresAt(expiresAt)
+            .build();
         return plugin.getStorage().insert(punishment).thenApply(inserted -> {
             inFlightBans.remove(flightKey);
             if (ip) {
@@ -62,6 +67,9 @@ public final class PunishmentService {
             publish(NetworkAction.PUNISHMENT_ADDED, inserted);
             fireWebhook(inserted);
             announceDiscord(inserted);
+            if (postPunishmentHandler != null) {
+                postPunishmentHandler.accept(inserted);
+            }
             return inserted;
         });
     }
@@ -81,17 +89,17 @@ public final class PunishmentService {
         }
         PunishmentType type = ip ? PunishmentType.IP_MUTE : PunishmentType.MUTE;
         Punishment punishment = Punishment.builder()
-                .type(type)
-                .scope(PunishmentScope.GLOBAL)
-                .server(plugin.getOmniBansConfig().getServerName())
-                .targetUuid(targetUuid)
-                .targetName(targetName)
-                .targetIp(targetIp)
-                .staffUuid(staffUuid)
-                .staffName(staffName)
-                .reason(reason)
-                .expiresAt(expiresAt)
-                .build();
+            .type(type)
+            .scope(PunishmentScope.GLOBAL)
+            .server(plugin.getOmniBansConfig().getServerName())
+            .targetUuid(targetUuid)
+            .targetName(targetName)
+            .targetIp(targetIp)
+            .staffUuid(staffUuid)
+            .staffName(staffName)
+            .reason(reason)
+            .expiresAt(expiresAt)
+            .build();
         return plugin.getStorage().insert(punishment).thenApply(inserted -> {
             inFlightMutes.remove(flightKey);
             if (ip) {
@@ -106,6 +114,9 @@ public final class PunishmentService {
             publish(NetworkAction.PUNISHMENT_ADDED, inserted);
             fireWebhook(inserted);
             announceDiscord(inserted);
+            if (postPunishmentHandler != null) {
+                postPunishmentHandler.accept(inserted);
+            }
             return inserted;
         });
     }
@@ -125,17 +136,17 @@ public final class PunishmentService {
         Component message = plugin.getMessages().component("kick.screen", screenPlaceholders);
         plugin.getMessageDispatcher().kick(target, message);
         Punishment punishment = Punishment.builder()
-                .type(PunishmentType.KICK)
-                .scope(PunishmentScope.SERVER)
-                .server(plugin.getOmniBansConfig().getServerName())
-                .targetUuid(target.getUniqueId())
-                .targetName(target.getName())
-                .staffUuid(staffUuid)
-                .staffName(staffName)
-                .reason(reason)
-                .expiresAt(-1L)
-                .active(false)
-                .build();
+            .type(PunishmentType.KICK)
+            .scope(PunishmentScope.SERVER)
+            .server(plugin.getOmniBansConfig().getServerName())
+            .targetUuid(target.getUniqueId())
+            .targetName(target.getName())
+            .staffUuid(staffUuid)
+            .staffName(staffName)
+            .reason(reason)
+            .expiresAt(-1L)
+            .active(false)
+            .build();
         plugin.getStorage().insert(punishment).thenAccept(inserted -> {
             if (plugin.getOmniBansConfig().isBroadcastKick()) {
                 Map<String, String> placeholders = new HashMap<>();
@@ -151,16 +162,16 @@ public final class PunishmentService {
 
     public CompletableFuture<Integer> warn(UUID targetUuid, String targetName, UUID staffUuid, String staffName, String reason) {
         Punishment punishment = Punishment.builder()
-                .type(PunishmentType.WARN)
-                .scope(PunishmentScope.GLOBAL)
-                .server(plugin.getOmniBansConfig().getServerName())
-                .targetUuid(targetUuid)
-                .targetName(targetName)
-                .staffUuid(staffUuid)
-                .staffName(staffName)
-                .reason(reason)
-                .expiresAt(-1L)
-                .build();
+            .type(PunishmentType.WARN)
+            .scope(PunishmentScope.GLOBAL)
+            .server(plugin.getOmniBansConfig().getServerName())
+            .targetUuid(targetUuid)
+            .targetName(targetName)
+            .staffUuid(staffUuid)
+            .staffName(staffName)
+            .reason(reason)
+            .expiresAt(-1L)
+            .build();
         return plugin.getStorage().insert(punishment).thenCompose(inserted -> {
             announceWarn(inserted, targetUuid, staffName, reason);
             return plugin.getStorage().countActiveWarns(targetUuid);
@@ -172,17 +183,17 @@ public final class PunishmentService {
 
     public CompletableFuture<Punishment> note(UUID targetUuid, String targetName, UUID staffUuid, String staffName, String content) {
         Punishment punishment = Punishment.builder()
-                .type(PunishmentType.NOTE)
-                .scope(PunishmentScope.SERVER)
-                .server(plugin.getOmniBansConfig().getServerName())
-                .targetUuid(targetUuid)
-                .targetName(targetName)
-                .staffUuid(staffUuid)
-                .staffName(staffName)
-                .reason(content)
-                .expiresAt(-1L)
-                .active(false)
-                .build();
+            .type(PunishmentType.NOTE)
+            .scope(PunishmentScope.SERVER)
+            .server(plugin.getOmniBansConfig().getServerName())
+            .targetUuid(targetUuid)
+            .targetName(targetName)
+            .staffUuid(staffUuid)
+            .staffName(staffName)
+            .reason(content)
+            .expiresAt(-1L)
+            .active(false)
+            .build();
         return plugin.getStorage().insert(punishment);
     }
 
@@ -343,12 +354,12 @@ public final class PunishmentService {
             return;
         }
         NetworkPacket packet = new NetworkPacket(
-                action,
-                punishment.getId(),
-                punishment.getType().name(),
-                punishment.getTargetUuid(),
-                PunishmentDisplay.safeName(punishment),
-                plugin.getOmniBansConfig().getServerName());
+            action,
+            punishment.getId(),
+            punishment.getType().name(),
+            punishment.getTargetUuid(),
+            PunishmentDisplay.safeName(punishment),
+            plugin.getOmniBansConfig().getServerName());
         plugin.getNetworkMessenger().publish(packet);
     }
 

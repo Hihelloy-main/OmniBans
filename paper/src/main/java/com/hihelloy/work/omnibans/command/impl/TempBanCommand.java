@@ -50,27 +50,27 @@ public final class TempBanCommand extends AbstractSubCommand {
         UUID staffUuid = sender instanceof Player player ? player.getUniqueId() : null;
         String staffName = sender.getName();
         plugin.getPlayerResolver().resolve(args[0]).thenAccept(resolved ->
-                plugin.getStaffExemptionService().hasPunishmentExemption(resolved.getUuid(), "omnibans.exempt.ban").thenAccept(exempt -> {
-                    if (exempt) {
-                        send(sender, "exempt.cannot-punish", Map.of("target", resolved.getName()));
+            plugin.getStaffExemptionService().hasPunishmentExemption(resolved.getUuid(), "omnibans.exempt.ban").thenAccept(exempt -> {
+                if (exempt) {
+                    send(sender, "exempt.cannot-punish", Map.of("target", resolved.getName()));
+                    return;
+                }
+                if (plugin.getCache().getBan(resolved.getUuid()) != null) {
+                    send(sender, "exempt.already-banned", Map.of("target", resolved.getName()));
+                    return;
+                }
+                String ip = resolveIp(resolved.getName());
+                plugin.getPunishmentService().ban(resolved.getUuid(), resolved.getName(), ip, staffUuid, staffName, reason, expiresAt, false).thenAccept(punishment -> {
+                    if (punishment == null) {
                         return;
                     }
-                    if (plugin.getCache().getBan(resolved.getUuid()) != null) {
-                        send(sender, "exempt.already-banned", Map.of("target", resolved.getName()));
-                        return;
-                    }
-                    String ip = resolveIp(resolved.getName());
-                    plugin.getPunishmentService().ban(resolved.getUuid(), resolved.getName(), ip, staffUuid, staffName, reason, expiresAt, false).thenAccept(punishment -> {
-                        if (punishment == null) {
-                            return;
-                        }
-                        Map<String, String> placeholders = new HashMap<>();
-                        placeholders.put("target", resolved.getName());
-                        placeholders.put("reason", reason);
-                        placeholders.put("duration", TimeFormatter.formatRemaining(expiresAt));
-                        send(sender, "tempban.success", placeholders);
-                    });
-                }));
+                    Map<String, String> placeholders = new HashMap<>();
+                    placeholders.put("target", resolved.getName());
+                    placeholders.put("reason", reason);
+                    placeholders.put("duration", TimeFormatter.formatRemaining(expiresAt));
+                    send(sender, "tempban.success", placeholders);
+                });
+            }));
     }
 
     private String resolveIp(String name) {
