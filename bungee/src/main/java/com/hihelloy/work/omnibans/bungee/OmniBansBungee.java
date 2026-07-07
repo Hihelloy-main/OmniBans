@@ -80,14 +80,14 @@ public final class OmniBansBungee extends Plugin {
     private PunishmentStorage buildStorage() {
         if (config.isMysql()) {
             return new MySqlStorage(
-                    config.getMysqlHost(),
-                    config.getMysqlPort(),
-                    config.getMysqlDatabase(),
-                    config.getMysqlUsername(),
-                    config.getMysqlPassword(),
-                    config.isMysqlUseSsl(),
-                    asyncExecutor,
-                    loggerAdapter);
+                config.getMysqlHost(),
+                config.getMysqlPort(),
+                config.getMysqlDatabase(),
+                config.getMysqlUsername(),
+                config.getMysqlPassword(),
+                config.isMysqlUseSsl(),
+                asyncExecutor,
+                loggerAdapter);
         }
         if (!getDataFolder().exists()) {
             getDataFolder().mkdirs();
@@ -99,10 +99,10 @@ public final class OmniBansBungee extends Plugin {
     private NetworkMessenger buildNetworkMessenger() {
         if (config.isRedisEnabled()) {
             return new RedisNetworkMessenger(
-                    config.getRedisHost(),
-                    config.getRedisPort(),
-                    config.getRedisPassword(),
-                    loggerAdapter);
+                config.getRedisHost(),
+                config.getRedisPort(),
+                config.getRedisPassword(),
+                loggerAdapter);
         }
         return new NoopNetworkMessenger();
     }

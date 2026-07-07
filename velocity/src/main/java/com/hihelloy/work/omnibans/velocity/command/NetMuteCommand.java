@@ -43,16 +43,16 @@ public final class NetMuteCommand implements SimpleCommand {
         UUID staffUuid = source instanceof Player player ? player.getUniqueId() : null;
         String staffName = source instanceof Player player ? player.getUsername() : "Console";
         Punishment punishment = Punishment.builder()
-                .type(PunishmentType.MUTE)
-                .scope(PunishmentScope.GLOBAL)
-                .server(plugin.getVelocityConfig().getServerName())
-                .targetUuid(target.getUniqueId())
-                .targetName(target.getUsername())
-                .staffUuid(staffUuid)
-                .staffName(staffName)
-                .reason(reason)
-                .expiresAt(-1L)
-                .build();
+            .type(PunishmentType.MUTE)
+            .scope(PunishmentScope.GLOBAL)
+            .server(plugin.getVelocityConfig().getServerName())
+            .targetUuid(target.getUniqueId())
+            .targetName(target.getUsername())
+            .staffUuid(staffUuid)
+            .staffName(staffName)
+            .reason(reason)
+            .expiresAt(-1L)
+            .build();
         plugin.getStorage().insert(punishment).thenAccept(inserted -> finish(source, target, inserted, reason));
     }
 

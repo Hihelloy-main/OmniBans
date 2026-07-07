@@ -47,17 +47,17 @@ public final class NetBanCommand implements SimpleCommand {
         String staffName = source instanceof Player player ? player.getUsername() : "Console";
         String ip = ((InetSocketAddress) target.getRemoteAddress()).getAddress().getHostAddress();
         Punishment punishment = Punishment.builder()
-                .type(PunishmentType.BAN)
-                .scope(PunishmentScope.GLOBAL)
-                .server(plugin.getVelocityConfig().getServerName())
-                .targetUuid(target.getUniqueId())
-                .targetName(target.getUsername())
-                .targetIp(ip)
-                .staffUuid(staffUuid)
-                .staffName(staffName)
-                .reason(reason)
-                .expiresAt(-1L)
-                .build();
+            .type(PunishmentType.BAN)
+            .scope(PunishmentScope.GLOBAL)
+            .server(plugin.getVelocityConfig().getServerName())
+            .targetUuid(target.getUniqueId())
+            .targetName(target.getUsername())
+            .targetIp(ip)
+            .staffUuid(staffUuid)
+            .staffName(staffName)
+            .reason(reason)
+            .expiresAt(-1L)
+            .build();
         plugin.getStorage().insert(punishment).thenAccept(inserted -> finish(source, target, inserted));
     }
 

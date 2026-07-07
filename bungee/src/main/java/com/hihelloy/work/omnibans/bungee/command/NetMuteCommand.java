@@ -43,16 +43,16 @@ public final class NetMuteCommand extends Command {
         UUID staffUuid = sender instanceof ProxiedPlayer player ? player.getUniqueId() : null;
         String staffName = sender.getName();
         Punishment punishment = Punishment.builder()
-                .type(PunishmentType.MUTE)
-                .scope(PunishmentScope.GLOBAL)
-                .server(plugin.getBungeeConfig().getServerName())
-                .targetUuid(target.getUniqueId())
-                .targetName(target.getName())
-                .staffUuid(staffUuid)
-                .staffName(staffName)
-                .reason(reason)
-                .expiresAt(-1L)
-                .build();
+            .type(PunishmentType.MUTE)
+            .scope(PunishmentScope.GLOBAL)
+            .server(plugin.getBungeeConfig().getServerName())
+            .targetUuid(target.getUniqueId())
+            .targetName(target.getName())
+            .staffUuid(staffUuid)
+            .staffName(staffName)
+            .reason(reason)
+            .expiresAt(-1L)
+            .build();
         plugin.getStorage().insert(punishment).thenAccept(inserted -> finish(sender, target, inserted, reason));
     }
 

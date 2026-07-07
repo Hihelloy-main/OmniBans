@@ -3,7 +3,7 @@ version: '${version}'
 main: com.hihelloy.work.omnibans.OmniBans
 api-version: '1.13'
 folia-supported: true
-softdepend: [LuckPerms, Essentials]
+softdepend: [LuckPerms, Essentials, DiscordSRV]
 author: Hihelloy
 description: An advanced cross-network moderation plugin
 website: https://github.com/Hihelloy-main/OmniBans

@@ -45,7 +45,7 @@ public final class UnbanIpCommand extends AbstractSubCommand {
         String input = args[0];
         if (IP_PATTERN.matcher(input).matches()) {
             plugin.getPunishmentService().unbanIp(input, staffUuid, staffName, "Unbanned").thenAccept(success ->
-                send(sender, success ? "unbanip.raw-success" : "unbanip.unknown-target", Map.of()));
+                send(sender, success ? "unbanip.raw-success" : "unbanip.not-banned-raw", Map.of()));
             return;
         }
         plugin.getPlayerResolver().resolve(input).thenAccept(resolved ->
@@ -54,10 +54,23 @@ public final class UnbanIpCommand extends AbstractSubCommand {
                     send(sender, "banip.no-ip-found", Map.of("target", resolved.getName()));
                     return;
                 }
-                String ip = ips.get(ips.size() - 1);
-                plugin.getPunishmentService().unbanIp(ip, staffUuid, staffName, "Unbanned").thenAccept(success ->
-                    send(sender, success ? "unbanip.success" : "unbanip.not-banned", Map.of("target", resolved.getName())));
+                tryEachIp(sender, resolved.getName(), ips, 0, staffUuid, staffName);
             }));
+    }
+
+    private void tryEachIp(CommandSender sender, String targetName, List<String> ips, int index, UUID staffUuid, String staffName) {
+        if (index >= ips.size()) {
+            send(sender, "unbanip.not-banned", Map.of("target", targetName));
+            return;
+        }
+        String ip = ips.get(index);
+        plugin.getPunishmentService().unbanIp(ip, staffUuid, staffName, "Unbanned").thenAccept(success -> {
+            if (success) {
+                send(sender, "unbanip.success", Map.of("target", targetName));
+            } else {
+                tryEachIp(sender, targetName, ips, index + 1, staffUuid, staffName);
+            }
+        });
     }
 
     @Override

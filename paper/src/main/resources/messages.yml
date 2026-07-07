@@ -45,6 +45,7 @@ unban:
 unbanip:
   success: "{prefix} <gray>You have <green>unbanned <white>{target}<gray>'s ip address"
   not-banned: "{prefix} <red>{target} does not have an active ip ban."
+  not-banned-raw: "{prefix} <red>That ip address is not currently banned."
   unknown-target: "{prefix} <red>That ip address is not currently banned."
   raw-success: "{prefix} <gray>You have <green>unbanned that ip address."
 

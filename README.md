@@ -1,117 +1,220 @@
 # OmniBans
 
-Welcome! OmniBans is a moderation suite for your Minecraft network. It runs as a plugin on your Paper, Spigot, or Folia server, and it comes with two small bridge plugins for Velocity and BungeeCord so a ban or mute you issue on one server takes effect everywhere on your network. Thanks for trying it out, and we hope it makes running your server a little easier. <3
+OmniBans is a moderation suite for Minecraft networks. It runs as a plugin on Paper, Spigot, or Folia servers and as a server-side mod on Fabric, Forge, and NeoForge, and it comes with two small bridge plugins for Velocity and BungeeCord proxies so a ban or mute issued on one server takes effect everywhere on your network. Thanks for trying it out. <3
 
-If this is your first time setting it up, `INSTALL.md` walks through the whole process step by step. Everything below assumes it is already running and is more about what OmniBans can do for you day to day.
+If this is your first time setting it up, `INSTALL.md` walks through the whole process step by step.
+
+## License
+
+OmniBans is released under the [MIT License](LICENSE).
 
 ## Supported versions
 
 | What | Supported range |
 |---|---|
-| Minecraft | 1.8 through 26.2 |
-| Server software | Spigot, Paper, Folia |
-| Proxy software | Velocity, BungeeCord |
+| Minecraft (Paper / Spigot / Folia) | 1.8 through 26.2 |
+| Minecraft (Fabric / Forge / NeoForge mods) | 1.21.x |
+| Minecraft (Sponge mod) | 1.21.x (SpongeAPI 12) |
 | Java | 17 or newer (see note below) |
 
-Folia support only applies to versions of Minecraft that Folia itself covers (1.19.4 and later). On older versions the standard Bukkit scheduler is used automatically, no configuration needed.
+Folia support only applies to Minecraft versions that Folia itself covers (1.19.4 and later). On older versions the standard Bukkit scheduler is used automatically.
 
-**A note on Minecraft version numbers:** Mojang switched to a year-based versioning format starting in 2026. Versions released in 2026 are numbered 26.1, 26.2, and so on, rather than continuing the old 1.x format. The last release in the old format was in the 1.21.x series. So the supported range above goes from 1.8 through the whole 1.x era and on into the new 26.x era.
+**A note on Minecraft version numbers:** Mojang switched to a year-based versioning format in 2026. Everything in 2026 is numbered 26.1, 26.2, and so on. The last version in the old 1.x format was in the 1.21.x series.
 
-**A note on Java:** The plugin is compiled targeting Java 17, meaning any server running Java 17 or newer can load it. The right Java version for your server depends on which Minecraft version you run. Servers on 1.18 through 1.20.4 need at least Java 17. Servers on 1.20.5 through 1.21.x need at least Java 21. Servers on 26.1 and 26.2 need Java 25, which can still load plugins compiled for Java 17 since Java is always backward compatible in that direction.
+**A note on Java:** The Paper plugin compiles for Java 17, so any server running Java 17 or newer can load it. Servers on 1.18 through 1.20.4 need at least Java 17. Servers on 1.20.5 through 1.21.x need at least Java 21. Servers on 26.1 or 26.2 need Java 25. The Fabric, Forge, NeoForge, and Sponge mod modules target Java 21, which all those loaders require for 1.21.x.
 
 ## Getting it running
 
-Build the project with Gradle (`./gradlew build`). You will end up with three jars:
+The project uses Gradle 8.10.2 via the included wrapper. The mod-loader Gradle plugins (fabric-loom, ForgeGradle, NeoGradle, SpongeGradle) are not compatible with Gradle composite builds, so the mod modules are standalone Gradle projects that share this same git repository.
 
-* `paper/build/libs/OmniBans-Paper.jar` goes into the `plugins` folder of every Paper, Spigot, or Folia server you run.
-* `velocity/build/libs/OmniBans-Velocity.jar` goes into your Velocity proxy's `plugins` folder.
-* `bungee/build/libs/OmniBans-Bungee.jar` goes into your BungeeCord proxy's `plugins` folder.
+Build the main project with Gradle:
 
-If you only have one server and no proxy, you only need the Paper jar.
+```
+./gradlew build
+```
 
-By default OmniBans stores everything in a small SQLite file right inside its own folder, which needs nothing installed and nothing set up, it just works the moment you start the server. That is the right choice if you only run one server. If you run more than one server and want a ban to follow a player between them, every server and your proxy need to point at the same MySQL database instead, set under `storage` in `config.yml` (and the matching section of each proxy's `config.properties`). A MySQL or MariaDB server with that database already created is the only thing you would ever need to install yourself, and only for that network case.
+When it finishes you will have these jars:
+
+```
+paper/build/libs/OmniBans-Paper.jar        → plugins/ folder on every Paper, Spigot, or Folia server
+velocity/build/libs/OmniBans-Velocity.jar  → plugins/ folder on Velocity proxy
+bungee/build/libs/OmniBans-Bungee.jar      → plugins/ folder on BungeeCord proxy
+```
+
+To build a mod jar, `cd` into that module's directory and run `./gradlew build` from there:
+
+```
+cd fabric   && ./gradlew build   → fabric/build/libs/OmniBans-Fabric-1.21.x.jar
+cd forge    && ./gradlew build   → forge/build/libs/OmniBans-Forge-1.21.x.jar
+cd neoforge && ./gradlew build   → neoforge/build/libs/OmniBans-NeoForge-1.21.x.jar
+cd sponge   && ./gradlew build   → sponge/build/libs/OmniBans-Sponge.jar
+```
+
+Each mod jar goes in your modded server's `mods/` folder.
+
+**Working on mod modules in IntelliJ IDEA:** The `fabric/`, `forge/`, `neoforge/`, and `sponge/` directories are visible in the project tree and fully editable. To get proper Gradle support (code completion, error highlighting) for a specific mod module, open that directory as a separate Gradle project: File > Open > select the module folder. You can have both the main project and a mod module open at the same time in different IntelliJ windows. Alternatively, in the Gradle panel click the `+` button and add the module directory as an additional Gradle project to the current window.
+
+If you only run one Paper server and no proxy, you only need the Paper jar.
+
+## Sponge
+
+The Sponge module targets SpongeAPI 12 for Minecraft 1.21.x servers running SpongeForge or SpongeVanilla. It provides the full set of moderation commands and enforcement, identical to the other mod platforms.
+
+**Installation:** Drop `OmniBans-Sponge.jar` into your Sponge server's `mods/` folder. On first start it creates `config/omnibans/config.properties`. Edit this file to configure your storage backend.
+
+**Commands on Sponge:** All the same commands as Paper are available. Players need the matching permission to use them (e.g. `omnibans.ban`, `omnibans.mute`, `omnibans.admin`). Sponge's permission system (LuckPerms, PermissionsEx, etc.) handles permission assignment the same way as on Paper.
+
+**What it does:**
+- Blocks banned players at login with the configured ban screen
+- Silences muted players in chat with a notification
+- Records the connecting IP address on every join for alt detection
+- Full command set: ban, tempban, unban, banip, unbanip, mute, tempmute, unmute, kick, warn, note, alts, history, check, banlist, mutelist, and `/omnibans` reload/version/spy
+
+**What it does not yet do:** The in-game inventory GUI (`/omnibans config`, `/omnibans messages`) is Paper-specific and not available on Sponge. Edit `config.properties` directly for configuration changes.
+
+**Velocity proxy with Sponge backend:** If your Sponge server is behind a Velocity proxy, install the OmniBans Velocity bridge as well. Both the Sponge mod and the Velocity bridge must point at the same MySQL database for cross-server bans to work.
+
+## Storage
+
+By default OmniBans stores everything in a small SQLite file right inside its own folder, which needs nothing installed and nothing set up, it just works the moment you start the server. That is the right choice if you only run one server.
+
+If you run more than one server and want a ban to follow a player between them, every server and your proxy need to point at the same MySQL database instead, set under `storage` in `config.yml` (and the matching section of each proxy's `config.properties` and each mod's `config/omnibans/config.properties`). A MySQL or MariaDB server with that database already created is the only thing you would ever need to install yourself, and only for that network case.
 
 ## Talking to your players
 
-Every message OmniBans sends, whether it is a ban screen, a chat warning, or a broadcast, comes from `messages.yml`, and you can write it in whatever style you are most comfortable with. You can use plain ampersand color codes like `&c`, the old section sign codes, MiniMessage tags like `<red>` and `<gradient:#ff0000:#0000ff>`, hex codes written as `&#ff00aa`, or even raw chat JSON if you really want to. OmniBans figures out what you wrote and renders it correctly either way, and gradients work whether you use MiniMessage's own gradient tag or just hand write a run of hex codes.
-
-If a player happens to be on plain Spigot rather than Paper, OmniBans still renders your formatting correctly. Spigot does not have any of Adventure's text system built in at all, so OmniBans quietly converts your message into Spigot's own chat component format before sending it, and the player sees exactly the same colors and styling either way.
+Every message OmniBans sends comes from `messages.yml`. You can write them in MiniMessage, plain `&c` ampersand codes, legacy section sign codes, hex codes, or raw chat JSON. The Velocity proxy module also uses MiniMessage. The BungeeCord proxy module uses `&` codes. The mod versions use plain text with newline support for ban screen messages.
 
 ## Commands
 
-`/ban`, `/tempban`, `/unban`, `/banip`, `/unbanip`, `/mute`, `/tempmute`, `/unmute`, `/kick`, `/warn`, `/note`, `/history`, `/check`, `/banlist`, `/mutelist`, `/alts`, and `/omnibans reload`, `/omnibans version`, `/omnibans config`, or `/omnibans messages`. Every one of them tab completes properly, so typing `/ban Ste` and pressing tab will offer you online players whose name starts with that, `/tempban` will offer you sensible duration suggestions like `1d` or `7d`, and reasons can be picked from a quick list you control yourself in `config.yml` under `punishments.common-reasons`. A player who does not actually hold the permission for a given command will not see it offer any tab suggestions either, so staff commands stay invisible in that sense to everyone else too.
+**Paper / Spigot / Folia:**
 
-`/alts <player>` shows you a player's known alt accounts, and tells you whether each alt is currently banned or muted, and whether the address they share is itself banned or muted. If the player you check is an operator, or holds the `*` permission through LuckPerms, OmniBans will simply tell you they are exempt rather than showing anything about them, since staff accounts should not be cross referenced this way.
+`/ban`, `/tempban`, `/unban`, `/banip`, `/unbanip`, `/mute`, `/tempmute`, `/unmute`, `/kick`, `/warn`, `/note`, `/history`, `/check`, `/banlist`, `/mutelist`, `/alts`, `/omnibans reload`, `/omnibans version`, `/omnibans config`, `/omnibans messages`, `/omnibans spy`.
+
+Every command tab-completes properly and only shows suggestions to players who hold the matching permission. Players who do not have permission for a command see nothing when they press tab.
+
+**Fabric / Forge / NeoForge:**
+
+`/ban`, `/tempban`, `/mute`, `/tempmute`, `/unmute`, `/kick`, `/warn`, `/omnibans version`.
+
+All mod commands require at least operator level 2. Commands on the mod platforms do not yet have the full feature set of the Paper plugin (no `/history`, `/banlist`, etc.), since those require the full Paper-specific GUI and cache infrastructure. Bans and mutes applied from mod commands are stored in the same database and are enforced across the whole network if you are using MySQL.
 
 ## Editing your configuration without leaving the game
 
-`/omnibans config` and `/omnibans messages` open `config.yml` and `messages.yml` as an in game menu, one item per setting. A toggle like `redis.enabled` is just a click away from flipping, shown as a green or red item depending on its current state. Anything else, a number, a piece of text, or a list like `punishments.common-reasons`, closes the menu and asks you to type the new value in chat, where typing `cancel` backs out without changing anything. A list is typed as plain text separated by commas, and if you are editing a multi line message template you can type `\n` anywhere you want a line break. Every change saves to disk and takes effect immediately, no need to also run `/omnibans reload` afterward.
+`/omnibans config` and `/omnibans messages` open `config.yml` and `messages.yml` as an in-game inventory menu. A toggle like `redis.enabled` is a single click. Anything else, a number, a piece of text, or a list, closes the menu and asks you to type the new value in chat. Type `cancel` to back out. Every change saves to disk and reloads immediately.
 
-## Keeping config.yml and messages.yml up to date across updates
+**On the mod platforms** configuration lives at `config/omnibans/config.properties` relative to your server root. There is no in-game GUI there; edit the file directly and restart.
 
-Every time OmniBans starts, it quietly checks your existing `config.yml` and `messages.yml` against whatever the current version expects. If a newer version of OmniBans introduces a setting that simply was not there before, it gets added to your file automatically using its default value, and everything you already had set stays exactly as you left it, nothing existing is ever overwritten by this. This means you can update OmniBans and keep your old configuration files in place without ever needing to manually copy new settings over by hand.
+## Keeping config files up to date across updates
 
-A setting is only ever removed from your file if a version of OmniBans deliberately stopped using it, and when that happens it is removed cleanly and a line is printed to your console naming exactly what was removed and from which file. Nothing else is ever touched this way, a setting you added yourself that OmniBans has never heard of, default or not, is always left alone forever. Just before any actual change is made, whether something was added or removed, the file as it was right before that change is copied to a `.bak` file next to it, so the previous state is always one click away if you ever need it.
-
-Two honest limitations worth knowing about. First, if a setting is ever renamed in a future version rather than simply added or removed, this system does not carry your old value over to the new name on its own, since a rename is a different kind of change than an addition or a removal, the kind this system was specifically built to handle. If that ever happens, this README will carry clear instructions for that particular update at the time. Second, this only checks and rewrites your file when something actually needs to change, but on the update where it does, any comments you had hand written into `config.yml` or `messages.yml` will not survive that rewrite, since that is a long standing limitation of how Bukkit reads and writes yaml files in general, not something specific to OmniBans. Your settings and their values are always preserved perfectly either way, only your own comments around them are at risk, and only on an update that actually changes something.
-
-This entire system only applies to `config.yml` and `messages.yml`. The Velocity and BungeeCord proxy bridges use a `config.properties` file instead, a different and much simpler format, and that file is not affected by any of this.
+On startup OmniBans checks every config file against the bundled defaults. Any key that a new version added is merged in automatically using its default value. Any key that a new version explicitly removed is deleted with a console log. Nothing else is touched, so every custom value you set and any extra key you added yourself are always left alone. A `.bak` backup of the file as it was before the change is written alongside it.
 
 ## Protecting players from accidental punishment
 
-You can hand a player one of these permissions to make sure nobody, even a trusted moderator having a bad day, can ban, mute, kick, or warn them by mistake:
+These permissions stop anyone from punishing a specific player, regardless of who tries:
 
-* `omnibans.exempt.ban`
-* `omnibans.exempt.mute`
-* `omnibans.exempt.kick`
-* `omnibans.exempt.warn`
-* `omnibans.exempt.banip`
+- `omnibans.exempt.ban`
+- `omnibans.exempt.mute`
+- `omnibans.exempt.kick`
+- `omnibans.exempt.warn`
+- `omnibans.exempt.banip`
 
-None of these are given to anyone by default. You decide who gets them.
+None are granted by default. You decide who gets them.
 
 ## Taking over from Essentials and vanilla commands
 
-Minecraft itself ships with its own `/ban`, `/ban-ip`, `/kick`, `/pardon`, and `/pardon-ip`, and EssentialsX has historically provided its own `/mute` and friends too. OmniBans is built to be the one actually handling moderation on your server, so it claims all of these labels for itself, including the two spelled slightly differently than its own commands (`ban-ip` and `pardon`/`pardon-ip`), so a habit formed on another server or a muscle memory vanilla command still reaches OmniBans rather than something else. If Essentials is installed, OmniBans notices this during startup and explicitly re-claims every command the two of you would otherwise both want, regardless of which of you happened to load first, and logs a line to console confirming it did so.
+OmniBans claims every moderation command label that Essentials or Minecraft itself would also register, including alternate names like `ban-ip`, `ipban`, `ip-ban`, `pardon`, `pardon-ip`, `silence`, `tban`, and `tmute`. If Essentials is installed OmniBans detects it on startup and re-claims all of them regardless of load order, logging a line to console confirming it did so.
+
+## Staff spy alerts
+
+Whenever a muted player tries to chat, or a banned player tries to join, every operator and every player holding the `*` LuckPerms permission receives a staff alert in chat showing the player's name and, for mute attempts, the message they tried to send. Toggle this with `/omnibans spy` (default: enabled). If DiscordSRV is installed, muted players' chat attempts are also suppressed from the Discord bridge channel so the message never reaches Discord.
 
 ## A note about your players' privacy
 
-OmniBans needs to remember which address a player connects from in order to ban an address and to notice when two accounts share one, but it will never show that address to anyone, in a chat message, in a command's output, or in a Discord message. If you ask `/check` or `/alts` about a player, you will see how many addresses are on record and whether any of them are currently banned or muted, but never the address itself. The only time an address ever appears anywhere is if a staff member types it themselves into a command like `/banip`, and that is their own input, not something OmniBans hands back to them.
-
-We want to be upfront with you here. While building this, a couple of spots slipped through where an address was being shown back to staff in a confirmation message (`/banip`'s success message, `/unbanip`'s success and failure messages, and `/check`'s summary line). Those have all been fixed, `/unbanip` now also accepts a player's name so you rarely need to type an address at all, and we are telling you about it rather than quietly patching it and saying nothing.
-
-A second leak in the same spirit was found afterward. When you typed a bare address straight into `/banip` with no player attached to it, OmniBans was storing that literal address as the punishment's display name, which then surfaced in places meant for player names, the server wide ban broadcast, the Discord webhook, and `/banlist`. That has been fixed at the source, a bare address ban no longer keeps the address as its name at all, and every place that displays a punishment's name now falls back to a generic label instead of ever being able to show an address, even if some future change accidentally tried to. `/banlist` and `/mutelist` were also tightened to operators only by default while we were in there, since a full list of who is banned, even with addresses already kept out of it, is not something every player needs to see.
+OmniBans needs to know which address a player connects from in order to enforce IP bans and detect alt accounts, but it will never show that address in any command output, broadcast, or Discord embed. If you run `/check` or `/alts`, you see how many addresses are on record and their ban status, never the addresses themselves.
 
 ## Telling your administrators on Discord
 
-OmniBans has two completely separate ways to post to Discord, and you can use either one, both, or neither.
+There are two separate Discord integrations, and you can use either, both, or neither.
 
-The simple one is a webhook, set through `discord.webhook-url` and `discord.enabled` in `config.yml`. A webhook is just a one way url Discord gives you for a single channel, no bot needed at all. With this turned on, OmniBans posts a plain embed to that channel every time a ban, ip ban, mute, ip mute, kick, or warn happens, naming the player, the staff member, and the reason. A webhook has no concept of mentioning a role and OmniBans does not attempt it, and a webhook never knows anything about alt accounts, it only ever posts that one simple kind of message.
+**Simple webhook** (`discord.webhook-url` and `discord.enabled` in `config.yml`): A one-way URL Discord gives you for a specific channel. No bot needed. Posts a plain embed whenever a ban, ip ban, mute, ip mute, kick, or warn happens. Does not include alt account information and cannot mention a role.
 
-The fuller one is an actual Discord bot, set through the `discord-bot` section. It fires for the exact same events as the webhook, plus a second kind of message: whenever a player who is not an operator and does not hold LuckPerms' `*` permission joins and turns out to have a known alt account, the same situation that triggers the in game staff warning. Every embed the bot sends also tells you the player's known alts and which of those alts are themselves banned, the same way `/alts` does in game, which the plain webhook embed does not include, and it can optionally ping a role so your staff actually notice it. Set this up in `config.yml`:
+**Discord bot** (`discord-bot` section in `config.yml`): Posts the same events as the webhook plus an alt-join alert whenever a player with known alts joins. Every embed includes the player's known alts and which are banned. Can optionally ping a role. Requires you to create a bot in Discord's developer portal and invite it to your server.
 
 ```yaml
 discord-bot:
   enabled: true
-  token: "your bot's token"
-  server-id: "your discord server's id"
-  channel-id: "the channel you want these messages posted in"
-  admin-role-id: "the role you want pinged, optional"
+  token: "your bot token"
+  server-id: "your discord server id"
+  channel-id: "the channel to post in"
+  admin-role-id: "role to ping, optional"
 ```
 
-You will need to invite your own bot to your server and give it permission to send messages and embeds in that channel. As with everything else in OmniBans, neither the webhook nor the bot embed ever contains an address.
+## The developer API
 
-## A note on issuing a lot of punishments quickly
+OmniBans ships an `api` module that third-party plugins and mods can compile against to issue and listen to punishments without depending on the full plugin internals.
 
-If you ever saw a server console error mentioning `AsyncCatcher` and `player kick` right after a ban, alongside a bit of noticeable lag when several punishments happened in quick succession, that was a real bug, not something on your end. A few things OmniBans does after saving a ban or mute, kicking the player and broadcasting the announcement, were running on a background thread instead of the server's main thread, which Minecraft does not allow for actions like that. The punishment itself was always still applied correctly even when this happened, but the repeated error was real overhead, which is exactly the slight lag you may have noticed. This has been fixed, that work now always happens on the main thread the way it is supposed to.
+**Add OmniBans to your `plugin.yml`:**
+```yaml
+depend: [OmniBans]
+```
 
-## A quick word on the Gradle build
+**Depend on the API jar at compile time** (add the `OmniBans-Paper.jar` to your compile classpath, or publish the `api` module to your local Maven and reference it).
 
-If your build fails during `shadowJar` with a strange error mentioning `org.objectweb.asm.commons.Remapper`, that is Shadow's package relocation step itself running into trouble with certain Shadow versions, not anything about the code OmniBans actually contains. The build no longer asks Shadow to relocate any package at all, since that relocation step was exactly what kept failing in different ways. Every dependency OmniBans needs still gets bundled straight into each jar, it just keeps its original package name rather than being renamed, which is a perfectly normal way to ship a plugin and only matters if another plugin on your server happens to bundle a conflicting version of the very same library.
+**Use the API:**
+```text
+if (OmniBansProvider.isLoaded()) {
+    OmniBansApi api = OmniBansProvider.get();
+
+    api.getPunishmentManager().ban(
+        PunishmentRequest.builder(ApiPunishmentType.BAN)
+            .target(uuid, name)
+            .staff(staffUuid, staffName)
+            .reason("Hacking")
+            .duration("7d")
+            .build()
+    ).thenAccept(punishment -> {
+        if (punishment != null) {
+            System.out.println("Banned with id " + punishment.getId());
+        }
+    });
+}
+```
+
+**Duration strings** accepted by `.duration(String)`: `30s`, `10m`, `2h`, `7d`, `1w`, and any combination like `1d12h30m`. Duration strings are also accepted anywhere in the API that takes an expiry.
+
+**Listen to punishments before and after they happen:**
+```text
+api.getEventBus().subscribe(PrePunishmentEvent.class, event -> {
+    if (event.getReason().contains("bad word")) {
+        event.setCancelled(true);
+    }
+});
+
+api.getEventBus().subscribe(PostPunishmentEvent.class, event -> {
+    System.out.println("Punishment stored: " + event.getPunishment().getId());
+});
+```
+
+`PrePunishmentEvent` fires before storage and is cancellable. It also lets you change the reason and expiry. `PostPunishmentEvent` fires after storage and reflects the final committed record. Both events fire whether the punishment came from a command or from an API call.
+
+**The API is available on every platform.** On Fabric, Forge, and NeoForge the same `OmniBansProvider.get()` call works from a mod after the OmniBans mod has initialized.
+
+## A note on the async error and lag you may have seen
+
+If your console ever showed a `Thread OmniBans-Worker failed main thread check: player kick` error after issuing a ban, that was a real bug where the player kick and the punishment broadcast were running on a background thread instead of Minecraft's main thread. It has been fixed. The punishments always applied correctly even when the error occurred, but the repeated check failures were genuine overhead, which is why you noticed slight lag. All Bukkit API calls now happen on the main thread.
+
+## A note on the Gradle build
+
+The main project (common, api, paper, velocity, bungee) uses Gradle 8.10.2 via the included wrapper and syncs cleanly. The mod modules (fabric, forge, neoforge, sponge) are standalone Gradle projects — mod-loader Gradle plugins (fabric-loom, ForgeGradle, NeoGradle, SpongeGradle) are not compatible with Gradle composite builds and cannot be included in the main sync. Open each mod module directory separately in IntelliJ to get full Gradle support for it.
+
+Do not upgrade the wrapper to Gradle 9 — IntelliJ IDEA may suggest this via a "New Minor Gradle Version Available" prompt. The mod-loader plugins require Gradle 8.x.
+
+If the build fails with a `org.objectweb.asm.commons.Remapper` error from the Shadow plugin, the fix is to remove `relocate()` calls from the failing `shadowJar {}` block. OmniBans does not use any relocation and the jars build correctly without it.
 
 ## A couple of things still on the list
 
-`/history`, `/banlist`, and `/mutelist` print to chat rather than opening a menu, which works well enough but a proper interface would be nicer one day. There is also no PlaceholderAPI expansion yet for things like a player's ban count. Both would be welcome additions whenever there is time for them.
+The mod platforms (Fabric, Forge, NeoForge) do not yet have `/history`, `/banlist`, `/mutelist`, or `/alts`, since those depend on the Paper-side cache and GUI infrastructure. The API also does not yet have a publish step to a Maven repository, so depending on it from an external project currently requires manually adding the API jar to your classpath. Both are planned improvements.
 
 ## Where this lives
 
-OmniBans is developed at [github.com/Hihelloy-main/OmniBans](https://github.com/Hihelloy-main/OmniBans). If you run into something that does not work the way this document says it should, that is the right place to say so. Direct contributions through pull requests are not accepted on this repository, so please do not open one, but issues and bug reports are always genuinely welcome and read. Thanks again for using OmniBans. <3
+OmniBans is developed at [github.com/Hihelloy-main/OmniBans](https://github.com/Hihelloy-main/OmniBans). Issues and bug reports are welcome. Direct pull requests are not accepted on this repository.

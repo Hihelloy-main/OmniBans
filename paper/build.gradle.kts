@@ -3,9 +3,14 @@ plugins {
     id("com.gradleup.shadow") version "8.3.5"
 }
 
+repositories {
+    maven("https://nexus.scarsz.me/content/groups/public/")
+}
+
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     compileOnly("net.luckperms:api:5.4")
+    compileOnly("com.discordsrv:discordsrv:1.26.0")
     implementation(project(":common"))
     implementation("net.kyori:adventure-text-minimessage:4.17.0")
     implementation("net.kyori:adventure-text-serializer-legacy:4.17.0")
