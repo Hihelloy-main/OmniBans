@@ -1,0 +1,52 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabricmc.net/' }
+        gradlePluginPortal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.fabricmc:fabric-loom:1.7.4'
+        classpath 'com.gradleup.shadow:shadow-gradle-plugin:8.3.5'
+    }
+}
+
+apply plugin: 'fabric-loom'
+apply plugin: 'com.gradleup.shadow'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    maven { url 'https://maven.fabricmc.net/' }
+    mavenCentral()
+}
+
+dependencies {
+    minecraft 'com.mojang:minecraft:1.21.1'
+    mappings loom.officialMojangMappings()
+    modImplementation 'net.fabricmc:fabric-loader:0.16.5'
+    modImplementation "net.fabricmc.fabric-api:fabric-api:0.102.0+1.21.1"
+    shadow('com.hihelloy.work.omnibans:common:1.0') { transitive = true }
+}
+
+shadowJar {
+    configurations = [project.configurations.shadow]
+    archiveClassifier = 'dev-shadow'
+    mergeServiceFiles()
+}
+
+remapJar {
+    inputFile = shadowJar.archiveFile
+    archiveFileName = 'OmniBans-Fabric-1.21.x.jar'
+}
+
+build {
+    dependsOn remapJar
+}
